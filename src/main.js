@@ -1,0 +1,41 @@
+const Pixi = new PIXI.Application();
+var htmlViewport = document.getElementById("viewport");
+var camera = new Camera();
+var map = new SceneMap();
+var ball1, ball2, ball3;
+
+class Entity {
+    constructor(texture) {
+        this.pos = new vec3();
+        this.sprite = new PIXI.Sprite(texture);
+        this.sprite.anchor.set(0.5, 1.0);
+        Pixi.stage.addChild(this.sprite);
+    }
+    draw() {
+        let p = camera.worldToCanvas(this.pos);
+        this.sprite.x = p.x;
+        this.sprite.y = p.y;
+        this.sprite.scale = new vec2(1.0, 1.0).times(camera.zoom);
+    }
+}
+async function main() {
+    await Pixi.init({ background: "#1099bb", resizeTo: htmlViewport });
+    await PIXI.Assets.init({
+        basePath: "sprites/",
+        texturePreference: {
+            resolution: window.devicePixelRatio
+        }
+    });
+    await map.load("maps/hub.json");
+    htmlViewport.appendChild(Pixi.canvas);
+    const texture = await PIXI.Assets.load({
+        src: "obstacles/cube.png", data: { scaleMode: "nearest" }
+    });
+    ball1 = new Entity(texture); ball1.pos = new vec3(0, 0, 0);
+    ball2 = new Entity(texture); ball2.pos = new vec3(1, 0, 0);
+    ball3 = new Entity(texture); ball3.pos = new vec3(0, 1, 0);
+    Pixi.ticker.add((dT) => {
+        ball1.draw(); ball2.draw(); ball3.draw();
+    });
+}
+main();
