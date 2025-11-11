@@ -5,14 +5,7 @@ class SceneMap {
         this.objects = [];
     }
     async load(filename) {
-        try {
-            const response = await fetch(filename);
-            if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log(data);
-        } catch (error) { console.error(error.message); }
-        //return data;
+        let data = await fetchJSON(filename);
+        console.log(data);
     }
 }
