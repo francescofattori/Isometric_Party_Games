@@ -22,6 +22,7 @@ class Controller {
             case "KeyA": this.a = true; break;
             case "KeyS": this.s = true; break;
             case "KeyD": this.d = true; break;
+            case "Space": this.jump = true; break;
             default: return;
         }
         this.genInputs();
@@ -32,6 +33,7 @@ class Controller {
             case "KeyA": this.a = false; break;
             case "KeyS": this.s = false; break;
             case "KeyD": this.d = false; break;
+            case "Space": this.jump = false; break;
             default: return;
         }
         this.genInputs();

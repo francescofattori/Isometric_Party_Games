@@ -4,11 +4,21 @@ class Player {
         this.back = false; //true means back
         this.controller = new Controller();
         this.speed = 3.5;
+        this.grounded = false;
         this.rigidbody = new CANNON.Body({
-            mass: 5, // kg
-            shape: new CANNON.Sphere(0.5),
+            mass: 30, // kg
+            fixedRotation: true,
+        })
+        let sphere = new CANNON.Sphere(0.5);
+        sphere.material = World.materials.player;
+        this.rigidbody.addShape(sphere);
+        this.rigidbody.addEventListener('collide', (event) => {
+            if (event.body.tag == "ground") {
+                this.grounded = true;
+            }
         })
         this.rigidbody.position.set(pos.x, pos.y, pos.z);
+        World.addBody(this.rigidbody);
     }
     static async loadTexture() {
         if (PIXI.Assets.cache.has("player")) return PIXI.Assets.cache.get("player");
@@ -44,6 +54,11 @@ class Player {
         let leftStick = this.controller.leftStick.rotated(-Math.PI / 4);
         this.rigidbody.velocity.x = this.speed * leftStick.x;
         this.rigidbody.velocity.y = this.speed * leftStick.y;
+        if (this.controller.jump && this.grounded) {
+            console.log("jump");
+            this.grounded = false;
+            this.rigidbody.velocity.z += 10;
+        }
     }
     draw() {
         let pos = this.rigidbody.position;

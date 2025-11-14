@@ -6,8 +6,8 @@ function updateLoop() {//starts physics loop
 }
 
 function update() {
-    World.step(World.dt);
     for (let entity of scene.entities) { entity.update(); }
+    World.step(World.dt);
 }
 
 function draw() {
