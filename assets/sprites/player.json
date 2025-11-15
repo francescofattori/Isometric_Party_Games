@@ -217,24 +217,26 @@
         "back_sit":["back_sit"]
     },
 
-    "speeds": {
-        "idle": 0.033,
-        "walk": 0.1,
-        "run": 0.1,
-        "jump": 0.1,
-        "fall": 0,
-        "exitFall": 0.1,
-        "startSit": 0.011,
-        "sit": 0,
+    "info": {
+        "idle":     {"speed": 0.033, "loop": true},
+        "walk":     {"speed": 0.1,   "loop": true},
+        "run":      {"speed": 0.1,   "loop": true},
+        "jump":     {"speed": 0.2,   "loop": false},
+        "ascend":   {"speed": 0.0,   "loop": false},
+        "fall":     {"speed": 0.0,   "loop": false},
+        "exitFall": {"speed": 0.1,   "loop": false},
+        "startSit": {"speed": 0.011, "loop": false},
+        "sit":      {"speed": 0.0,   "loop": false},
 
-        "back_idle": 0.033,
-        "back_walk": 0.1,
-        "back_run": 0.1,
-        "back_jump": 0.1,
-        "back_fall": 0,
-        "back_exitFall": 0.1,
-        "back_startSit": 0.011,
-        "back_sit": 0
+        "back_idle":     {"speed": 0.033, "loop": true},
+        "back_walk":     {"speed": 0.1,   "loop": true},
+        "back_run":      {"speed": 0.1,   "loop": true},
+        "back_jump":     {"speed": 0.2,   "loop": false},
+        "back_ascend":   {"speed": 0.0,   "loop": false},
+        "back_fall":     {"speed": 0.0,   "loop": false},
+        "back_exitFall": {"speed": 0.1,   "loop": false},
+        "back_startSit": {"speed": 0.011, "loop": false},
+        "back_sit":      {"speed": 0.0,   "loop": false}
     },
 
     "meta": {

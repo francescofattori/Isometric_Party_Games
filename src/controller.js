@@ -4,6 +4,7 @@ class Controller {
         this.leftStick = new vec2();
         this.rightStick = new vec2();
         this.jump = false;
+        this.afk = false; this.afkTime = undefined;
         if (this.input == "keyboard") {
             Controller.resetKeyListener();
             this.genInputs = this.genInputs.bind(this);
@@ -15,6 +16,7 @@ class Controller {
             documentEventListeners.keyup.push({ listener: this.keyUp, useCapture: false });
             this.w = false; this.a = false; this.s = false; this.d = false;
         }
+        this.genInputs();
     }
     keyDown(e) {
         switch (e.code) {
@@ -23,6 +25,7 @@ class Controller {
             case "KeyS": this.s = true; break;
             case "KeyD": this.d = true; break;
             case "Space": this.jump = true; break;
+            case "ShiftLeft": this.shift = true; break;
             default: return;
         }
         this.genInputs();
@@ -34,6 +37,7 @@ class Controller {
             case "KeyS": this.s = false; break;
             case "KeyD": this.d = false; break;
             case "Space": this.jump = false; break;
+            case "ShiftLeft": this.shift = false; break;
             default: return;
         }
         this.genInputs();
@@ -41,6 +45,11 @@ class Controller {
     genInputs() {
         if (this.input == "keyboard") {
             this.leftStick = new vec2(this.d - this.a, this.w - this.s).normalized();
+            this.run = this.shift;
+            this.afk = !(this.w || this.a || this.s || this.d || this.jump);
+            if (this.afk) {
+                if (this.afkTime == undefined) this.afkTime = World.time;
+            } else this.afkTime = undefined;
         }
     }
     static resetKeyListener() {

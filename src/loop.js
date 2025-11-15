@@ -7,7 +7,9 @@ function updateLoop() {//starts physics loop
 
 function update() {
     for (let entity of scene.entities) { entity.update(); }
-    World.step(World.dt);
+    let t = performance.now() / 1000.0;
+    World.step(World.dt, t - World.lastUpdate);
+    World.lastUpdate = t;
 }
 
 function draw() {
