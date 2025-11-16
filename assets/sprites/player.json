@@ -202,9 +202,8 @@
         "jump": ["jump1","jump2","jump3"],
         "ascend": ["jump3"],
         "fall":["fall1"],
-        "exitFall":["fall1","fall2","idle2"],
+        "land":["fall1","fall2","idle2"],
         "startSit":["idle1","idle2","sit"],
-        "sit":["sit"],
 
         "back_idle": ["back_idle1","back_idle2"],
         "back_walk": ["back_walk1","back_walk2","back_walk3","back_walk4"],
@@ -212,9 +211,8 @@
         "back_jump": ["back_jump1","back_jump2","back_jump3"],
         "back_ascend": ["back_jump3"],
         "back_fall":["back_fall1"],
-        "back_exitFall":["back_fall1","back_fall2","back_idle2"],
-        "back_startSit":["back_idle1","back_idle2","back_sit"],
-        "back_sit":["back_sit"]
+        "back_land":["back_fall1","back_fall2","back_idle2"],
+        "back_startSit":["back_idle1","back_idle2","back_sit"]
     },
 
     "info": {
@@ -224,9 +222,8 @@
         "jump":     {"speed": 0.2,   "loop": false},
         "ascend":   {"speed": 0.0,   "loop": false},
         "fall":     {"speed": 0.0,   "loop": false},
-        "exitFall": {"speed": 0.1,   "loop": false},
+        "land":     {"speed": 0.2,   "loop": false},
         "startSit": {"speed": 0.011, "loop": false},
-        "sit":      {"speed": 0.0,   "loop": false},
 
         "back_idle":     {"speed": 0.033, "loop": true},
         "back_walk":     {"speed": 0.1,   "loop": true},
@@ -234,9 +231,8 @@
         "back_jump":     {"speed": 0.2,   "loop": false},
         "back_ascend":   {"speed": 0.0,   "loop": false},
         "back_fall":     {"speed": 0.0,   "loop": false},
-        "back_exitFall": {"speed": 0.1,   "loop": false},
-        "back_startSit": {"speed": 0.011, "loop": false},
-        "back_sit":      {"speed": 0.0,   "loop": false}
+        "back_land":     {"speed": 0.2,   "loop": false},
+        "back_startSit": {"speed": 0.011, "loop": false}
     },
 
     "meta": {

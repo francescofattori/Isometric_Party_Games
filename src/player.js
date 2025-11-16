@@ -1,12 +1,19 @@
+let a = 3;
 class Player {
+    pos = new vec3();
+    anim = "idle";
+    animName = "idle";
+    dir = 1; //1 means right, -1 means left
+    back = false; //true means back
+    speed = 0 * 3.5;
+    jumpForce = 10;
+    grounded = false;
+    rightHand = { sprite: undefined, pos: new vec3() };
+    leftHand = { sprite: undefined, pos: new vec3() };
+    lastFrameChange = 0; //last time the frame changed
+    animCounter = 0; //from 0 to 1 progression in frame of animation
     constructor(pos = new vec3()) {
-        this.anim = "idle";
-        this.animName = "idle";
-        this.dir = 1; //1 means right, -1 means left
-        this.back = false; //true means back
         this.controller = new Controller();
-        this.speed = 3.5;
-        this.grounded = false;
         this.rigidbody = new CANNON.Body({
             mass: 5, // kg
             fixedRotation: true,
@@ -19,29 +26,50 @@ class Player {
         this.rigidbody.position.set(pos.x, pos.y, pos.z);
         World.addBody(this.rigidbody);
     }
-    static async loadTexture() {
-        if (PIXI.Assets.cache.has("player")) return PIXI.Assets.cache.get("player");
-        let sheetTexture = await PIXI.Assets.load({ src: "player.png", data: { scaleMode: "nearest" } });
-        PIXI.Assets.add({
-            alias: "player",
-            src: "player.json",
-            data: { texture: sheetTexture }
-        });
-        let texture = await PIXI.Assets.load("player");
-        let data = await fetchJSON("assets/sprites/player.json");
-        for (const anim in texture.animations) {
-            texture.animations[anim].speed = data.info[anim].speed;
-            texture.animations[anim].loop = data.info[anim].loop;
+    static async loadTextures() {
+        let playerTexture, handTexture;
+        if (PIXI.Assets.cache.has("player")) playerTexture = PIXI.Assets.cache.get("player");
+        else {
+            let sheetTexture = await PIXI.Assets.load({ src: "player.png", data: { scaleMode: "nearest" } });
+            PIXI.Assets.add({
+                alias: "player",
+                src: "player.json",
+                data: { texture: sheetTexture }
+            });
+            playerTexture = await PIXI.Assets.load("player");
+            let data = await fetchJSON("assets/sprites/player.json");
+            for (const anim in playerTexture.animations) {
+                playerTexture.animations[anim].speed = data.info[anim].speed;
+                playerTexture.animations[anim].loop = data.info[anim].loop;
+            }
         }
-        return texture;
+        if (PIXI.Assets.cache.has("hand")) handTexture = PIXI.Assets.cache.get("hand");
+        else handTexture = await PIXI.Assets.load({ alias: "hand", src: "hand.png", data: { scaleMode: "nearest" } });
+        return { player: playerTexture, hand: handTexture };
     }
     async load() {
         //Sprite management
-        this.texture = await Player.loadTexture();
+        let textures = await Player.loadTextures();
+        this.texture = textures.player; this.handTexture = textures.hand;
         this.sprite = new PIXI.AnimatedSprite(this.texture.animations.idle);
         this.sprite.animationSpeed = this.texture.animations.idle.speed;
+        this.sprite.onFrameChange = () => { this.lastFrameChange = World.time; };
+        this.sprite.onFrameChange = this.sprite.onFrameChange.bind(this);
+        this.sprite.onComplete = () => {
+            switch (this.anim) {
+                case "land": this.anim = "idle"; break;
+            }
+        };
+        this.sprite.onComplete = this.sprite.onComplete.bind(this);
         Pixi.stage.addChild(this.sprite);
         this.sprite.play();
+        //Hands
+        this.rightHand.sprite = new PIXI.Sprite(this.handTexture);
+        this.rightHand.sprite.anchor.set(0.5, 0.5);
+        this.leftHand.sprite = new PIXI.Sprite(this.handTexture);
+        this.leftHand.sprite.anchor.set(0.5, 0.5);
+        Pixi.stage.addChild(this.rightHand.sprite);
+        Pixi.stage.addChild(this.leftHand.sprite);
         //----------------
         scene.entities.push(this);
     }
@@ -56,11 +84,11 @@ class Player {
     collide(e) {
         if (e.body.tag == "ground") {
             this.grounded = true;
-            this.anim = "idle";
+            if (this.anim == "fall") this.anim = "land";
         }
     }
     update() {
-        //physics
+        //Physics
         let leftStick = this.controller.leftStick.rotated(-Math.PI / 4);
         let speed = this.speed; if (this.controller.run) speed *= 1.33;
         this.rigidbody.velocity.x = speed * leftStick.x;
@@ -68,25 +96,39 @@ class Player {
         if (this.controller.jump && this.grounded) {
             this.anim = "jump";
             this.grounded = false;
-            this.rigidbody.velocity.z += 10;
+            this.rigidbody.velocity.z += this.jumpForce;
         }
-        //graphics
+        //Graphics
+        this.animCounter = (World.time - this.lastFrameChange);
+        if (this.sprite.animationSpeed == 0) this.animCounter = 1;
+        else this.animCounter *= this.sprite.animationSpeed * 60;
+        this.animCounter = Math.max(0, Math.min(this.animCounter, 1));
         if (this.controller.leftStick.x < 0.0) this.dir = -1;
         if (this.controller.leftStick.x > 0.0) this.dir = 1;
         if (this.controller.leftStick.y > 0.0) this.back = true;
-        if (this.controller.leftStick.y < 0.0) this.back = false;
-        if (this.grounded) {
-            if (this.controller.leftStick.length() == 0) this.anim = "idle";
+        if (this.controller.leftStick.y <= 0.0) this.back = false;
+        if (this.grounded && this.anim != "land") {
+            if (this.controller.leftStick.length() == 0) this.anim = "idle"; 
             else this.anim = "walk";
             let s = Math.abs(this.controller.leftStick.scalar(new vec2(0, 1)));
             if (this.anim == "walk" && this.controller.run && s < 0.75) this.anim = "run";
-        }else{
-            if(this.rigidbody.velocity.z > 0) this.anim = "ascend";
-            else this.anim = "fall";
+        } else if (!this.grounded) {
+            if (this.rigidbody.velocity.z < 0) this.anim = "fall";
+            else if (this.anim != "jump") this.anim = "ascend";
         }
         if (World.time - this.controller.afkTime > 5) this.anim = "startSit";
+        this.updateHands();
+    }
+    updateHands() {
+        let pos = Player.handPos[this.anim][this.sprite.currentFrame];
+        if (pos == undefined) pos = Player.handPos[this.anim][0];
+        let base = Player.handPos["base"][0];
+        if (this.anim == "run") base = Player.handPos["base"][1];
+        this.rightHand.pos = new vec3(base.x + pos.x, base.y + pos.y, base.z + pos.z).rotated(this.controller.leftAngle);
+        this.leftHand.pos = new vec3(-base.y - pos.x, -base.x - pos.y, base.z + pos.z).rotated(this.controller.leftAngle);
     }
     draw() {
+        //Player
         let pos = this.rigidbody.position;
         pos = { x: pos.x, y: pos.y, z: pos.z - 0.5 };
         let p = camera.worldToCanvas(pos);
@@ -95,5 +137,28 @@ class Player {
         this.sprite.zIndex = p.zIndex;
         if (this.back) this.setAnim("back_" + this.anim);
         else this.setAnim(this.anim);
+        //Hands
+        let rHandPos = this.rightHand.pos.plus(pos);
+        p = camera.worldToCanvas(rHandPos, false);
+        this.rightHand.sprite.x = p.x; this.rightHand.sprite.y = p.y;
+        this.rightHand.sprite.scale = { x: this.dir * camera.zoom, y: camera.zoom };
+        rHandPos.z = pos.z; this.rightHand.sprite.zIndex = camera.zIndex(rHandPos);
+        let lHandPos = this.leftHand.pos.plus(pos);
+        p = camera.worldToCanvas(lHandPos, false);
+        this.leftHand.sprite.x = p.x; this.leftHand.sprite.y = p.y;
+        this.leftHand.sprite.scale = { x: this.dir * camera.zoom, y: camera.zoom };
+        lHandPos.z = pos.z; this.leftHand.sprite.zIndex = camera.zIndex(lHandPos);
+    }
+    static handPos = {
+        base: [new vec3(-0.124, -0.126, 0.31), new vec3(-0.064, -0.186, 0.31)],//BasePos
+        idle: [new vec3(0, 0, 0.025), new vec3(0, 0, -0.05)],//Idle
+        walk: [new vec3(0.05, -0.05, 0.05), new vec3(0, 0, 0), new vec3(-0.05, 0.05, 0.05), new vec3(0, 0, 0)],//Walk
+        run: [new vec3(0.08, -0.08, 0.05), new vec3(0, 0, 0), new vec3(-0.08, 0.08, 0.05), new vec3(0, 0, 0)],//Run
+        jump: [new vec3(0, 0, 0), new vec3(0, 0, 0.15), new vec3(0, 0, 0.15)],//Jump
+        ascend: [new vec3(0, 0, 0.15)],//Ascend
+        fall: [new vec3(0, 0, 0.05)],//Fall
+        land: [new vec3(0, 0, 0.05), new vec3(0, 0, -0.05), new vec3(0, 0, 0.05)],//Land
+        startSit: [new vec3(0, 0, -0.15), new vec3(0, 0, -0.15), new vec3(0, 0, -0.05)],//StartSit
+        sit: [new vec3(0, 0, -0.05)]//Sit
     }
 }

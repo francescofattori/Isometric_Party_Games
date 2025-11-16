@@ -1,10 +1,10 @@
 class Controller {
+    input = "keyboard"; //or gamepad
+    leftStick = new vec2(); leftAngle = -Math.PI / 2;
+    rightStick = new vec2();
+    jump = false;
+    afk = false; afkTime = undefined;
     constructor() {
-        this.input = "keyboard"; //or gamepad
-        this.leftStick = new vec2();
-        this.rightStick = new vec2();
-        this.jump = false;
-        this.afk = false; this.afkTime = undefined;
         if (this.input == "keyboard") {
             Controller.resetKeyListener();
             this.genInputs = this.genInputs.bind(this);
@@ -45,6 +45,8 @@ class Controller {
     genInputs() {
         if (this.input == "keyboard") {
             this.leftStick = new vec2(this.d - this.a, this.w - this.s).normalized();
+            if(this.leftStick.length() > 0.0)
+                this.leftAngle = Math.atan2(this.leftStick.y, this.leftStick.x);
             this.run = this.shift;
             this.afk = !(this.w || this.a || this.s || this.d || this.jump);
             if (this.afk) {
