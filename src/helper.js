@@ -1,3 +1,4 @@
+var documentEventListeners = { keydown: [], keyup: [] }; //for handling key events
 async function fetchJSON(filename) {
     try {
         const response = await fetch(filename);
@@ -8,4 +9,6 @@ async function fetchJSON(filename) {
         return data;
     } catch (error) { console.error(error.message); }
 }
-var documentEventListeners = { keydown: [], keyup: [] }; //for handling key events
+function clamp(num, min, max) {
+    return Math.min(Math.max(num, min), max)
+}

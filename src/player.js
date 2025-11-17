@@ -1,17 +1,17 @@
-let a = 3;
 class Player {
     pos = new vec3();
     anim = "idle";
     animName = "idle";
     dir = 1; //1 means right, -1 means left
     back = false; //true means back
-    speed = 0 * 3.5;
+    speed = 3.5;
     jumpForce = 10;
     grounded = false;
     rightHand = { sprite: undefined, pos: new vec3() };
     leftHand = { sprite: undefined, pos: new vec3() };
     lastFrameChange = 0; //last time the frame changed
     animCounter = 0; //from 0 to 1 progression in frame of animation
+    animChanged = false; //true if this frame is the first after the animation changed
     constructor(pos = new vec3()) {
         this.controller = new Controller();
         this.rigidbody = new CANNON.Body({
@@ -53,7 +53,10 @@ class Player {
         this.texture = textures.player; this.handTexture = textures.hand;
         this.sprite = new PIXI.AnimatedSprite(this.texture.animations.idle);
         this.sprite.animationSpeed = this.texture.animations.idle.speed;
-        this.sprite.onFrameChange = () => { this.lastFrameChange = World.time; };
+        this.sprite.onFrameChange = () => {
+            this.lastFrameChange = World.time;
+            this.animChanged = false;
+        };
         this.sprite.onFrameChange = this.sprite.onFrameChange.bind(this);
         this.sprite.onComplete = () => {
             switch (this.anim) {
@@ -80,6 +83,7 @@ class Player {
         this.sprite.animationSpeed = this.texture.animations[anim].speed;
         this.sprite.loop = this.texture.animations[anim].loop;
         this.sprite.play();
+        this.animChanged = true;
     }
     collide(e) {
         if (e.body.tag == "ground") {
@@ -88,6 +92,7 @@ class Player {
         }
     }
     update() {
+        this.controller.genInputs();
         //Physics
         let leftStick = this.controller.leftStick.rotated(-Math.PI / 4);
         let speed = this.speed; if (this.controller.run) speed *= 1.33;
@@ -102,13 +107,13 @@ class Player {
         this.animCounter = (World.time - this.lastFrameChange);
         if (this.sprite.animationSpeed == 0) this.animCounter = 1;
         else this.animCounter *= this.sprite.animationSpeed * 60;
-        this.animCounter = Math.max(0, Math.min(this.animCounter, 1));
+        this.animCounter = clamp(this.animCounter, 0, 1);
         if (this.controller.leftStick.x < 0.0) this.dir = -1;
         if (this.controller.leftStick.x > 0.0) this.dir = 1;
         if (this.controller.leftStick.y > 0.0) this.back = true;
-        if (this.controller.leftStick.y <= 0.0) this.back = false;
+        if (this.controller.leftStick.y < 0.0) this.back = false;
         if (this.grounded && this.anim != "land") {
-            if (this.controller.leftStick.length() == 0) this.anim = "idle"; 
+            if (this.controller.leftStick.length() == 0) this.anim = "idle";
             else this.anim = "walk";
             let s = Math.abs(this.controller.leftStick.scalar(new vec2(0, 1)));
             if (this.anim == "walk" && this.controller.run && s < 0.75) this.anim = "run";
@@ -116,14 +121,22 @@ class Player {
             if (this.rigidbody.velocity.z < 0) this.anim = "fall";
             else if (this.anim != "jump") this.anim = "ascend";
         }
-        if (World.time - this.controller.afkTime > 5) this.anim = "startSit";
+        if (World.time - this.controller.afkTime > 10) this.anim = "sit";
         this.updateHands();
     }
     updateHands() {
-        let pos = Player.handPos[this.anim][this.sprite.currentFrame];
-        if (pos == undefined) pos = Player.handPos[this.anim][0];
-        let base = Player.handPos["base"][0];
-        if (this.anim == "run") base = Player.handPos["base"][1];
+        let animLength = Player.handPos[this.anim].length;
+        let targetPos = Player.handPos[this.anim][this.sprite.currentFrame];
+        let prevPos = Player.handPos[this.anim][(this.sprite.currentFrame + animLength - 1) % animLength];
+        if (targetPos == undefined) {
+            targetPos = Player.handPos[this.anim][0];
+            prevPos = Player.handPos[this.anim][animLength - 1];
+        }
+        if(this.animChanged) prevPos = targetPos;
+        let pos = prevPos.lerp(targetPos, 2 * this.animCounter);
+        if (this.dir == -1) { pos.x *= -1; pos.y *= -1; } if (this.back) { pos.x *= -1; pos.y *= -1; }
+        let base = new vec3(Player.handPos["base"][0]);
+        if (this.anim == "run") base = new vec3(Player.handPos["base"][1]);
         this.rightHand.pos = new vec3(base.x + pos.x, base.y + pos.y, base.z + pos.z).rotated(this.controller.leftAngle);
         this.leftHand.pos = new vec3(-base.y - pos.x, -base.x - pos.y, base.z + pos.z).rotated(this.controller.leftAngle);
     }
@@ -158,7 +171,6 @@ class Player {
         ascend: [new vec3(0, 0, 0.15)],//Ascend
         fall: [new vec3(0, 0, 0.05)],//Fall
         land: [new vec3(0, 0, 0.05), new vec3(0, 0, -0.05), new vec3(0, 0, 0.05)],//Land
-        startSit: [new vec3(0, 0, -0.15), new vec3(0, 0, -0.15), new vec3(0, 0, -0.05)],//StartSit
-        sit: [new vec3(0, 0, -0.05)]//Sit
+        sit: [new vec3(0, 0, 0.025), new vec3(0.03, -0.03, -0.15), new vec3(0.03, -0.03, -0.15)]//Sit
     }
 }

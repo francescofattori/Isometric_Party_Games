@@ -8,7 +8,6 @@ async function initPixi() {
         }
     });
     htmlViewport.appendChild(Pixi.canvas);
-    await scene.load("hub");
 }
 function initCannon() {
     World.gravity = new CANNON.Vec3(0, 0, -40);
@@ -26,17 +25,8 @@ async function main() {
     initCannon();
     await initPixi();
     //set scene
+    await scene.load("hub");
     player = new Player(new vec3(0, 0, 7)); await player.load();
-
-    let groundBody = new CANNON.Body({
-        type: CANNON.Body.STATIC // can also be achieved by setting the mass to 0
-    });
-    let shape = new CANNON.Plane();
-    shape.material = World.materials.ground;
-    groundBody.addShape(shape);
-    groundBody.tag = "ground";
-    World.addBody(groundBody);
-
     //start loops
     updateLoop();
     Pixi.ticker.add(draw);
