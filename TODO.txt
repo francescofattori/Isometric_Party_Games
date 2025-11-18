@@ -1,0 +1,3 @@
+-
+-reoder class structure and draw diagram
+-add rightStick with keyboard and mouse support with pointer

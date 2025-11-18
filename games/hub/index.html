@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>
+        Isometric Party Games
+    </title>
+    <style>
+        html,
+        body {
+            background: black;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #viewport {
+            color: white;
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            overflow: hidden;
+        }
+    </style>
+    <script defer src="/include/geckos.io-client.3.0.2.min.js"></script>
+    <script defer src="/include/cannon-es.0.20.0.umd.min.js"></script>
+    <script defer src="/include/pixi.8.13.2.min.js"></script>
+    <script defer src="/src/vector.js"></script>
+    <script defer src="/src/camera.js"></script>
+    <script defer src="/src/assets.js"></script>
+    <script defer src="/src/map.js"></script>
+    <script defer src="/src/entity.js"></script>
+    <script defer src="/src/controller.js"></script>
+    <script defer src="/src/player.js"></script>
+    <script defer src="/src/scene.js"></script>
+    <script defer src="/src/global.js"></script>
+    <script defer src="/src/loop.js"></script>
+    <script defer src="main.js"></script>
+</head>
+
+<body>
+    <p id="stats" style="color:white"></p>
+    <div id="viewport" style="opacity: 0;"></div>
+</body>
+
+</html>

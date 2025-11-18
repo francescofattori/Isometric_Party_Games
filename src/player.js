@@ -19,42 +19,21 @@ class Player {
             fixedRotation: true,
         })
         let sphere = new CANNON.Sphere(0.5);
-        sphere.material = World.materials.player;
+        sphere.material = world.materials.player;
         this.rigidbody.addShape(sphere);
         this.collide = this.collide.bind(this);
-        this.rigidbody.addEventListener('collide', this.collide)
+        this.rigidbody.addEventListener('collide', this.collide);
         this.rigidbody.position.set(pos.x, pos.y, pos.z);
-        World.addBody(this.rigidbody);
-    }
-    static async loadTextures() {
-        let playerTexture, handTexture;
-        if (PIXI.Assets.cache.has("player")) playerTexture = PIXI.Assets.cache.get("player");
-        else {
-            let sheetTexture = await PIXI.Assets.load({ src: "player.png", data: { scaleMode: "nearest" } });
-            PIXI.Assets.add({
-                alias: "player",
-                src: "player.json",
-                data: { texture: sheetTexture }
-            });
-            playerTexture = await PIXI.Assets.load("player");
-            let data = await fetchJSON("assets/sprites/player.json");
-            for (const anim in playerTexture.animations) {
-                playerTexture.animations[anim].speed = data.info[anim].speed;
-                playerTexture.animations[anim].loop = data.info[anim].loop;
-            }
-        }
-        if (PIXI.Assets.cache.has("hand")) handTexture = PIXI.Assets.cache.get("hand");
-        else handTexture = await PIXI.Assets.load({ alias: "hand", src: "hand.png", data: { scaleMode: "nearest" } });
-        return { player: playerTexture, hand: handTexture };
+        world.addBody(this.rigidbody);
     }
     async load() {
         //Sprite management
-        let textures = await Player.loadTextures();
-        this.texture = textures.player; this.handTexture = textures.hand;
+        this.texture = await assets.load("player", "/assets/sprites/player", "sheetTexture");
+        this.handTexture = await assets.load("hand", "/assets/sprites/hand", "texture");
         this.sprite = new PIXI.AnimatedSprite(this.texture.animations.idle);
         this.sprite.animationSpeed = this.texture.animations.idle.speed;
         this.sprite.onFrameChange = () => {
-            this.lastFrameChange = World.time;
+            this.lastFrameChange = world.time;
             this.animChanged = false;
         };
         this.sprite.onFrameChange = this.sprite.onFrameChange.bind(this);
@@ -64,15 +43,15 @@ class Player {
             }
         };
         this.sprite.onComplete = this.sprite.onComplete.bind(this);
-        Pixi.stage.addChild(this.sprite);
+        pixi.stage.addChild(this.sprite);
         this.sprite.play();
         //Hands
         this.rightHand.sprite = new PIXI.Sprite(this.handTexture);
         this.rightHand.sprite.anchor.set(0.5, 0.5);
         this.leftHand.sprite = new PIXI.Sprite(this.handTexture);
         this.leftHand.sprite.anchor.set(0.5, 0.5);
-        Pixi.stage.addChild(this.rightHand.sprite);
-        Pixi.stage.addChild(this.leftHand.sprite);
+        pixi.stage.addChild(this.rightHand.sprite);
+        pixi.stage.addChild(this.leftHand.sprite);
         //----------------
         scene.entities.push(this);
     }
@@ -104,7 +83,7 @@ class Player {
             this.rigidbody.velocity.z += this.jumpForce;
         }
         //Graphics
-        this.animCounter = (World.time - this.lastFrameChange);
+        this.animCounter = (world.time - this.lastFrameChange);
         if (this.sprite.animationSpeed == 0) this.animCounter = 1;
         else this.animCounter *= this.sprite.animationSpeed * 60;
         this.animCounter = clamp(this.animCounter, 0, 1);
@@ -121,7 +100,7 @@ class Player {
             if (this.rigidbody.velocity.z < 0) this.anim = "fall";
             else if (this.anim != "jump") this.anim = "ascend";
         }
-        if (World.time - this.controller.afkTime > 10) this.anim = "sit";
+        if (world.time - this.controller.afkTime > 10) this.anim = "sit";
         this.updateHands();
     }
     updateHands() {
@@ -132,7 +111,7 @@ class Player {
             targetPos = Player.handPos[this.anim][0];
             prevPos = Player.handPos[this.anim][animLength - 1];
         }
-        if(this.animChanged) prevPos = targetPos;
+        if (this.animChanged) prevPos = targetPos;
         let pos = prevPos.lerp(targetPos, 2 * this.animCounter);
         if (this.dir == -1) { pos.x *= -1; pos.y *= -1; } if (this.back) { pos.x *= -1; pos.y *= -1; }
         let base = new vec3(Player.handPos["base"][0]);

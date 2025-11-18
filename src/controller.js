@@ -1,3 +1,4 @@
+var documentEventListeners = { keydown: [], keyup: [] }; //for handling key events
 class Controller {
     input = "keyboard"; //or gamepad
     leftStick = new vec2(); leftAngle = -Math.PI / 2;
@@ -43,7 +44,7 @@ class Controller {
         }
     }
     genInputs() {
-        let dt = World.time - this.prevTime;
+        let dt = world.time - this.prevTime;
         if (this.input == "keyboard") {
             //making inputs fade so it allows for smooth transitions 10 is just a big number
             this.wValue += this.w * 10 - this.fadeRate * dt; this.wValue = clamp(this.wValue, 0, 1);
@@ -58,10 +59,10 @@ class Controller {
             this.run = this.shift;
             this.afk = !(this.w || this.a || this.s || this.d || this.jump);
             if (this.afk) {
-                if (this.afkTime == undefined) this.afkTime = World.time;
+                if (this.afkTime == undefined) this.afkTime = world.time;
             } else this.afkTime = undefined;
         }
-        this.prevTime = World.time;
+        this.prevTime = world.time;
     }
     static resetKeyListener() {
         for (const event of documentEventListeners["keydown"]) {

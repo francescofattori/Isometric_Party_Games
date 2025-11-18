@@ -1,25 +1,22 @@
 class Entity {
+    pos = new vec3();
     constructor(pos = new vec3()) {
         this.pos = pos;
     }
-    async load(filename) {
-        let data = await fetchJSON("assets/entities/" + filename + ".json");
+    async load(alias, src) {
+        let data = await assets.load(alias, src, "json");
         //Sprite management
-        let texture;
-        if (PIXI.Assets.cache.has(data.sprite)) {
-            texture = PIXI.Assets.cache.get(data.sprite);
-        } else {
-            texture = await PIXI.Assets.load({ src: data.sprite, data: { scaleMode: "nearest" } });
-        }
+        let texture = await assets.load(data.sprite, data.sprite, "texture");
         this.sprite = new PIXI.Sprite(texture); this.sprite.anchor.set(0.5, (texture.height - 1) / texture.height);
         if (data.anchor) { this.sprite.anchor.set((data.anchor.x + 1) / texture.width, (data.anchor.y + 1) / texture.height); }
-        Pixi.stage.addChild(this.sprite);
-        //----------------
-        scene.entities.push(this);
+        pixi.stage.addChild(this.sprite);
         this.draw();
     }
-    update(){
-        
+    add(){
+        scene.entities.push(this);
+    }
+    update() {
+
     }
     draw() {
         let p = camera.worldToCanvas(this.pos);

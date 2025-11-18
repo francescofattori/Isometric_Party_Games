@@ -1,3 +1,6 @@
 {
-    "map": "hub"
+    "map": { "src": "hub", "root": true },
+    "entities": [
+        { "alias": "player", "pos": {"x": 0, "y": 0, "z": 7}, "type": "player" }
+    ]
 }

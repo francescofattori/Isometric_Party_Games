@@ -1,3 +1,7 @@
+function clamp(num, min, max) {
+    return Math.min(Math.max(num, min), max)
+}
+
 class vec2 {
     constructor(a = 0, b = 0) {
         if (a.y != undefined) { this.x = a.x; this.y = a.y; }
@@ -69,11 +73,11 @@ class vec2 {
         return new vec2(_x, _y)
     }
     lerp(w, t) {//standard linear interpolation
-        if (t > 1.0) { t = 1.0; } if (t < 0.0) { t = 0.0; }
+        t = clamp(t, 0, 1);
         return new vec2(this.x * (1 - t) + w.x * t, this.y * (1 - t) + w.y * t);
     }
     aLerp(w, t) {//an armonic interpolation
-        if (t > 1.0) { t = 1.0; } if (t < 0.0) { t = 0.0; }
+        t = clamp(t, 0, 1);
         t = 1 - Math.cos(t * pi + 1) / 2;
         return new vec2(this.x * (1 - t) + w.x * t, this.y * (1 - t) + w.y * t);
     }
@@ -89,10 +93,10 @@ class vec3 {
         else if (a.y != undefined) { this.x = a.x; this.y = a.y; this.z = b; }
         else { this.x = a; this.y = b; this.z = c; }
     }
-    equals(b){
-        if(this.x!=b.x)return false;
-        if(this.y!=b.y)return false;
-        if(this.z!=b.z)return false;
+    equals(b) {
+        if (this.x != b.x) return false;
+        if (this.y != b.y) return false;
+        if (this.z != b.z) return false;
         return true;
     }
     add(a = 0, b = 0, c = 0) {
@@ -160,18 +164,12 @@ class vec3 {
         return new vec3(_x, _y, this.z);
     }
     lerp(w, t) {//standard linear interpolation
-        if (t > 1.0) { t = 1.0; } if (t < 0.0) { t = 0.0; }
+        t = clamp(t, 0, 1);
         return new vec3(this.x * (1 - t) + w.x * t, this.y * (1 - t) + w.y * t, this.z * (1 - t) + w.z * t);
     }
     aLerp(w, t) {//an armonic interpolation
-        if (t > 1.0) { t = 1.0; } if (t < 0.0) { t = 0.0; }
+        t = clamp(t, 0, 1);
         t = 1 - Math.cos(t * pi + 1) / 2;
         return new vec3(this.x * (1 - t) + w.x * t, this.y * (1 - t) + w.y * t, this.z * (1 - t) + w.z * t);
     }
-}
-
-try {
-    module.exports = { vec2, vec3 };
-} catch (err) {
-
 }
