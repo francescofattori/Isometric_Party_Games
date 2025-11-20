@@ -1,12 +1,8 @@
 class Player {
-    pos = new vec3();
-    anim = "idle";
-    animName = "idle";
+    anim = "idle"; animName = "idle";
     dir = 1; //1 means right, -1 means left
     back = false; //true means back
-    speed = 3.5;
-    jumpForce = 10;
-    grounded = false;
+    speed = 3.5; jumpForce = 10; grounded = false;
     rightHand = { sprite: undefined, pos: new vec3() };
     leftHand = { sprite: undefined, pos: new vec3() };
     lastFrameChange = 0; //last time the frame changed
@@ -14,22 +10,24 @@ class Player {
     animChanged = false; //true if this frame is the first after the animation changed
     constructor(pos = new vec3()) {
         this.controller = new Controller();
-        this.rigidbody = new CANNON.Body({
-            mass: 5, // kg
-            fixedRotation: true,
-        })
-        let sphere = new CANNON.Sphere(0.5);
-        sphere.material = world.materials.player;
-        this.rigidbody.addShape(sphere);
-        this.collide = this.collide.bind(this);
-        this.rigidbody.addEventListener('collide', this.collide);
+        this.rigidbody = new CANNON.Body({ mass: 35, fixedRotation: true });
+        let upSphere = new CANNON.Sphere(0.25); upSphere.material = world.materials["player"];
+        let downSphere = new CANNON.Sphere(0.25); downSphere.material = world.materials["player"];
+        let cylinder = new CANNON.Cylinder(0.25, 0.25, 0.5); cylinder.material = world.materials["player"];
+        downSphere.tag = "feet";
+        this.rigidbody.addShape(upSphere, new CANNON.Vec3(0, 0, 0.25));
+        this.rigidbody.addShape(downSphere, new CANNON.Vec3(0, 0, -0.25));
+        this.rigidbody.addShape(cylinder);
         this.rigidbody.position.set(pos.x, pos.y, pos.z);
+        this.collide = this.collide.bind(this);
+        this.rigidbody.addEventListener("collide", this.collide);
         world.addBody(this.rigidbody);
     }
     async load() {
         //Sprite management
         this.texture = await assets.load("player", "/assets/sprites/player", "sheetTexture");
         this.handTexture = await assets.load("hand", "/assets/sprites/hand", "texture");
+        this.shadowTexture = await assets.load("shadow", "/assets/sprites/shadow", "sheetTexture");
         this.sprite = new PIXI.AnimatedSprite(this.texture.animations.idle);
         this.sprite.animationSpeed = this.texture.animations.idle.speed;
         this.sprite.onFrameChange = () => {
@@ -52,8 +50,10 @@ class Player {
         this.leftHand.sprite.anchor.set(0.5, 0.5);
         pixi.stage.addChild(this.rightHand.sprite);
         pixi.stage.addChild(this.leftHand.sprite);
-        //----------------
-        scene.entities.push(this);
+        //Shadow
+        this.shadow = new PIXI.AnimatedSprite(this.shadowTexture.animations.shadow);
+        this.shadow.alpha = 0.35;
+        pixi.stage.addChild(this.shadow);
     }
     setAnim(anim) {
         if (anim == "" || this.animName == anim) return;
@@ -65,7 +65,7 @@ class Player {
         this.animChanged = true;
     }
     collide(e) {
-        if (e.body.tag == "ground") {
+        if (e.body.tag == "ground" && e.contact.si.tag == "feet" && this.anim != "jump") {
             this.grounded = true;
             if (this.anim == "fall") this.anim = "land";
         }
@@ -140,6 +140,25 @@ class Player {
         this.leftHand.sprite.x = p.x; this.leftHand.sprite.y = p.y;
         this.leftHand.sprite.scale = { x: this.dir * camera.zoom, y: camera.zoom };
         lHandPos.z = pos.z; this.leftHand.sprite.zIndex = camera.zIndex(lHandPos);
+        //Shadow
+        let ray = new CANNON.Ray(new CANNON.Vec3(pos.x, pos.y, pos.z + 0.1), new CANNON.Vec3(pos.x, pos.y, pos.z - 10));
+        ray.mode = CANNON.RAY_MODES.CLOSEST;
+        ray.skipBackfaces = true;
+        let result = new CANNON.RaycastResult();
+        ray.intersectBodies(world.bodies, result);
+        let z = result.hitPointWorld.z;
+        if (result.hasHit) {
+            this.shadow.visible = true;
+            let shadowPos = { x: pos.x, y: pos.y, z: z };
+            p = camera.worldToCanvas(shadowPos);
+            this.shadow.x = p.x; this.shadow.y = p.y;
+            this.shadow.scale = { x: this.dir * camera.zoom, y: camera.zoom };
+            this.shadow.zIndex = p.zIndex;
+            if (this.shadow.zIndex > this.sprite.zIndex) //so that shadow is behind player
+                this.shadow.zIndex = this.sprite.zIndex - 0.000001;
+        } else {
+            this.shadow.visible = false;
+        }
     }
     static handPos = {
         base: [new vec3(-0.124, -0.126, 0.31), new vec3(-0.064, -0.186, 0.31)],//BasePos

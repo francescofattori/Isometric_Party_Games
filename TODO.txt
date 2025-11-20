@@ -1,3 +1,4 @@
--
--reoder class structure and draw diagram
+-solve materials
+-solve jump
+-raycast shadow
 -add rightStick with keyboard and mouse support with pointer

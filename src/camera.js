@@ -1,7 +1,7 @@
 const pixPerUnit = 32;
 class Camera {
     pos = new vec3();
-    zoom = 3;
+    zoom = 4;
     zIndex(p) {
         let z = 1.0 + 2.0 * ((2 * p.z - p.x - p.y) - scene.map.maxZIndex) * scene.map.multZIndex;
         if (scene.map.heightAt(p) < 0) z -= 2;

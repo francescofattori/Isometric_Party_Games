@@ -32,7 +32,7 @@ class SceneMap {
                 let y = this.heights.length - 1 - i - this.center.y;
                 let pos = new CANNON.Vec3(x, y, height - this.center.z - (height + 1) / 2);
                 const shape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, (height + 1) / 2));
-                shape.material = world.materials.ground;
+                shape.material = world.materials["map"];
                 this.collider.addShape(shape, pos);
             }
         }
@@ -59,5 +59,10 @@ class SceneMap {
         if (x < 0) x = 0; if (x >= this.size.x) x = this.size.x - 1;
         if (y < 0) y = 0; if (y >= this.size.y) y = this.size.y - 1;
         return this.heights[y][x];
+    }
+    zAt(p) {
+        let z = this.heightAt(p);
+        if (z <= 0 || z >= this.size.z) return undefined;
+        return z - this.center.z;
     }
 }

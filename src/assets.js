@@ -39,8 +39,9 @@ class AssetsManager {
             src: src + ".json",
             data: { texture: sheetTexture }
         });
-        let texture = await PIXI.Assets.load("player");
-        let data = await this.load("player", src, "json");
+        let texture = await PIXI.Assets.load(alias);
+        let data = await this.load(alias, src, "json");
+        if (!data.info) return texture;
         for (const anim in texture.animations) {
             texture.animations[anim].speed = data.info[anim].speed;
             texture.animations[anim].loop = data.info[anim].loop;

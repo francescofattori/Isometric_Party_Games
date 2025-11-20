@@ -6,10 +6,14 @@ class Scene {
     async load(alias, root = false) {
         let data = await assets.load("scene_" + alias, "assets/scenes/" + alias, "json", root);
         this.map = new SceneMap(); await this.map.load(data.map.src, data.map.root);
-        for (const entity of data.entities) {
-            if (entity.type == "player") {
-                let player = new Player(entity.pos); await player.load();
+        for (const _entity of data.entities) {
+            if (_entity.type == "player") {
+                let player = new Player(_entity.pos); await player.load();
                 this.add(player);
+            } else {
+                let entity = new Entity(); await entity.load(_entity.alias, _entity.src, _entity.root);
+                this.add(entity);
+                entity.rigidbody.position.set(_entity.pos.x, _entity.pos.y, _entity.pos.z);
             }
         }
     }

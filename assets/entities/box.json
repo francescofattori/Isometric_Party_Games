@@ -1,0 +1,17 @@
+{
+    "sprite": "box1",
+    "anchor": {
+        "x": 8,
+        "y": 12
+    },
+    "collider": {
+        "type": "box",
+        "size": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+        },
+        "mass": 5,
+        "material": "object"
+    }
+}
