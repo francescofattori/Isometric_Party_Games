@@ -5,7 +5,7 @@ class AssetsManager {
     }
     async load(alias, src, type, root = false) {
         if (this.cache.has(type + ": " + alias)) return this.cache.get(alias);
-        if (root) src = "/" + src;
+        if (root) src = "../../" + src;
         switch (type) {
             case "json": return this.#loadJSON(alias, src);
             case "texture": return this.#loadTexture(alias, src);
