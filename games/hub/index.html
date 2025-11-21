@@ -33,7 +33,6 @@
     </style>
     <script defer>
         const __root__ = URL.parse("../../", location.href).href;
-        console.log(location.href, __root__);
         let dependencies = [
             __root__ + "include/geckos.io-client.3.0.2.min.js",
             __root__ + "include/cannon-es.0.20.0.umd.min.js",
@@ -52,7 +51,8 @@
         ];
         function loadScripts() {
             if (dependencies.length <= 0) return;
-            let script = document.createElement("script"); script.src = dependencies.shift();
+            let script = document.createElement("script");
+            script.src = dependencies.shift();
             script.onload = loadScripts; document.head.appendChild(script);
         }
         loadScripts();
