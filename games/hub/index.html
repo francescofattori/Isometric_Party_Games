@@ -31,36 +31,30 @@
             overflow: hidden;
         }
     </style>
-    <script defer id="geckos.io"></script>
-    <script defer id="cannon-es"></script>
-    <script defer id="pixi.js"></script>
-    <script defer id="vector"></script>
-    <script defer id="scene"></script>
-    <script defer id="camera"></script>
-    <script defer id="assets"></script>
-    <script defer id="global"></script>
-    <script defer id="map"></script>
-    <script defer id="entity"></script>
-    <script defer id="controller"></script>
-    <script defer id="player"></script>
-    <script defer id="loop"></script>
-    <script defer id="main"></script>
     <script defer>
         const __root__ = URL.parse("../../", location.href).href;
-        document.getElementById("geckos.io").src = __root__ + "include/geckos.io-client.3.0.2.min.js";
-        document.getElementById("cannon-es").src = __root__ + "include/cannon-es.0.20.0.umd.min.js";
-        document.getElementById("pixi.js").src = __root__ + "include/pixi.8.13.2.min.js";
-        document.getElementById("vector").src = __root__ + "src/vector.js";
-        document.getElementById("scene").src = __root__ + "src/scene.js";
-        document.getElementById("camera").src = __root__ + "src/camera.js";
-        document.getElementById("assets").src = __root__ + "src/assets.js";
-        document.getElementById("global").src = __root__ + "src/global.js";
-        document.getElementById("map").src = __root__ + "src/map.js";
-        document.getElementById("entity").src = __root__ + "src/entity.js";
-        document.getElementById("controller").src = __root__ + "src/controller.js";
-        document.getElementById("player").src = __root__ + "src/player.js";
-        document.getElementById("loop").src = __root__ + "src/loop.js";
-        document.getElementById("main").src = "main.js";
+        let dependencies = [
+            __root__ + "include/geckos.io-client.3.0.2.min.js",
+            __root__ + "include/cannon-es.0.20.0.umd.min.js",
+            __root__ + "include/pixi.8.13.2.min.js",
+            __root__ + "src/vector.js",
+            __root__ + "src/scene.js",
+            __root__ + "src/camera.js",
+            __root__ + "src/assets.js",
+            __root__ + "src/global.js",
+            __root__ + "src/map.js",
+            __root__ + "src/entity.js",
+            __root__ + "src/controller.js",
+            __root__ + "src/player.js",
+            __root__ + "src/loop.js",
+            "main.js"
+        ];
+        function loadScripts() {
+            if (dependencies.length <= 0) return;
+            let script = document.createElement("script"); script.src = dependencies.shift();
+            script.onload = loadScripts; document.head.appendChild(script);
+        }
+        loadScripts();
     </script>
 </head>
 
