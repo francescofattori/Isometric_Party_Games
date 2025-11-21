@@ -1,11 +1,13 @@
-class AssetsManager {
+import * as PIXI from "pixi";
+import { __root } from "./global.mjs";
+export class AssetsManager {
     cache = new Map();
     get(alias) {
         return this.cache.get(alias);
     }
     async load(alias, src, type, root = false) {
         if (this.cache.has(type + ": " + alias)) return this.cache.get(type + ": " + alias);
-        if (root) src = __root__ + src;
+        if (root) src = __root + src;
         switch (type) {
             case "json": return this.#loadJSON(alias, src);
             case "texture": return this.#loadTexture(alias, src);
@@ -29,7 +31,7 @@ class AssetsManager {
     }
     async #loadSheetTexture(alias, src) {
         let texture;
-        if (PIXI.Assets.cache.has(alias + "Tex")&&false) texture = PIXI.Assets.cache.get(alias + "Tex");
+        if (PIXI.Assets.cache.has(alias + "Tex")) texture = PIXI.Assets.cache.get(alias + "Tex");
         else {
             let sheetTexture = await PIXI.Assets.load({
                 alias: alias + "Sheet",

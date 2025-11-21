@@ -1,4 +1,9 @@
-class Player {
+import * as CANNON from "cannon";
+import * as PIXI from "pixi";
+import { pixi, world, camera, assets } from "./global.mjs";
+import { Controller } from "./controller.mjs"
+import { vec3, clamp } from "./vector.mjs";
+export class Player {
     anim = "idle"; animName = "idle";
     dir = 1; //1 means right, -1 means left
     back = false; //true means back

@@ -1,15 +1,23 @@
-//This file must be included in every game project, it holds global variables and initializers
-const pixi = new PIXI.Application();
-const world = new CANNON.World();
-const scene = new Scene();
-const camera = new Camera();
-const assets = new AssetsManager();
+import * as PIXI from "pixi";
+import * as CANNON from "cannon";
+import { Scene } from "./scene.mjs";
+import { Camera } from "./camera.mjs";
+import { AssetsManager } from "./assets.mjs";
+export function makeObjectGlobal(obj) {
+    Object.entries(obj).forEach(([name, exported]) => window[name] = exported);
+}
+export const __root = URL.parse("../../", location.href).href;
+export const pixi = new PIXI.Application();
+export const world = new CANNON.World();
+export const scene = new Scene();
+export const camera = new Camera();
+export const assets = new AssetsManager();
 //HTML
-const htmlViewport = document.getElementById("viewport");
-const htmlPixelPerfectView = document.getElementById("pixelPerfectView");
-const htmlStats = document.getElementById("stats");
+export const htmlViewport = document.getElementById("viewport");
+export const htmlPixelPerfectView = document.getElementById("pixelPerfectView");
+export const htmlStats = document.getElementById("stats");
 //Init
-async function initPixi() {
+export async function initPixi() {
     await pixi.init({ background: "#1099bb", resizeTo: htmlPixelPerfectView });
     htmlPixelPerfectView.appendChild(pixi.canvas);
     window.onresize = () => {
@@ -19,7 +27,7 @@ async function initPixi() {
     window.onresize();
     pixi.resize();
 }
-async function initCannon(materialsSrc, root = false) {
+export async function initCannon(materialsSrc, root = false) {
     world.gravity = new CANNON.Vec3(0, 0, -40);
     world.updateTime = 0; world.lastUpdate = 0; world.statTime = 0;
     world.updateTimeSum = 0; world.FPSSum = 0; world.statCount = 0;
@@ -42,7 +50,7 @@ async function initCannon(materialsSrc, root = false) {
     }
     world.defaultContactMaterial.contactEquationRelaxation = 10;
     world.defaultContactMaterial.contactEquationStiffness = 5e8;
-    /*world.addEventListener('beginContact', (event) => {
-        console.log(event.bodyA.id, event.bodyB.id);
-    })*/
 }
+
+export { Player } from "./player.mjs"
+export { vec2, vec3 } from "./vector.mjs";

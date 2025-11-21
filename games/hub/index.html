@@ -31,32 +31,19 @@
             overflow: hidden;
         }
     </style>
-    <script defer>
-        const __root__ = URL.parse("../../", location.href).href;
-        let dependencies = [
-            __root__ + "include/geckos.io-client.3.0.2.min.js",
-            __root__ + "include/cannon-es.0.20.0.umd.min.js",
-            __root__ + "include/pixi.8.13.2.min.js",
-            __root__ + "src/vector.js",
-            __root__ + "src/scene.js",
-            __root__ + "src/camera.js",
-            __root__ + "src/assets.js",
-            __root__ + "src/global.js",
-            __root__ + "src/map.js",
-            __root__ + "src/entity.js",
-            __root__ + "src/controller.js",
-            __root__ + "src/player.js",
-            __root__ + "src/loop.js",
-            "main.js"
-        ];
-        function loadScripts() {
-            if (dependencies.length <= 0) return;
-            let script = document.createElement("script");
-            script.src = dependencies.shift();
-            script.onload = loadScripts; document.head.appendChild(script);
-        }
-        loadScripts();
+    <script>
+        const root = URL.parse("../../", location.href).href;
+        const importmap = {
+            imports: {
+                global: root + "/src/global.mjs",
+                pixi: root + "/include/pixi.8.14.3.min.mjs",
+                cannon: root + "/include/cannon-es.0.20.0.mjs"
+            }
+        };
+        const script = document.createElement("script"); script.type = "importmap";
+        script.innerHTML = JSON.stringify(importmap); document.head.appendChild(script);
     </script>
+    <script defer type="module" src="main.mjs"></script>
 </head>
 
 <body>

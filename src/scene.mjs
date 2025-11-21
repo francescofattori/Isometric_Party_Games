@@ -1,4 +1,8 @@
-class Scene {
+import { pixi, world, assets, htmlViewport } from "./global.mjs";
+import { SceneMap } from "./map.mjs";
+import { Entity } from "./entity.mjs";
+import { update } from "./loop.mjs";
+export class Scene {
     state = "inactive";
     map = undefined;
     entities = [];

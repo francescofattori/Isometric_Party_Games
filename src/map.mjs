@@ -1,4 +1,8 @@
-class SceneMap {
+import * as CANNON from "cannon";
+import * as PIXI from "pixi";
+import { pixi, world, camera, assets } from "./global.mjs";
+import { vec2, vec3 } from "./vector.mjs";
+export class SceneMap {
     async load(alias, root = false) {
         let data = await assets.load("map_" + alias, "assets/maps/" + alias + "/" + alias, "json", root);
         //Sprite management

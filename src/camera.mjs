@@ -1,5 +1,7 @@
+import { pixi, scene } from "./global.mjs";
+import { vec2, vec3 } from "./vector.mjs";
 const pixPerUnit = 32;
-class Camera {
+export class Camera {
     pos = new vec3();
     zoom = 4;
     zIndex(p) {

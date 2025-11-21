@@ -1,8 +1,7 @@
-function clamp(num, min, max) {
+export function clamp(num, min, max) {
     return Math.min(Math.max(num, min), max)
 }
-
-class vec2 {
+export class vec2 {
     constructor(a = 0, b = 0) {
         if (a.y != undefined) { this.x = a.x; this.y = a.y; }
         else { this.x = a; this.y = b; }
@@ -87,7 +86,7 @@ class vec2 {
 
 }
 
-class vec3 {
+export class vec3 {
     constructor(a = 0, b = 0, c = 0) {
         if (a.z != undefined) { this.x = a.x; this.y = a.y; this.z = a.z; }
         else if (a.y != undefined) { this.x = a.x; this.y = a.y; this.z = b; }

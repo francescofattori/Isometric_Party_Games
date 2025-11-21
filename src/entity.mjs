@@ -1,4 +1,7 @@
-class Entity {
+import * as CANNON from "cannon";
+import * as PIXI from "pixi";
+import { pixi, world, camera, assets } from "./global.mjs";
+export class Entity {
     async load(alias, src, root = false) {
         let data = await assets.load(alias, "assets/entities/" + src, "json", root);
         this.rigidbody = new CANNON.Body({

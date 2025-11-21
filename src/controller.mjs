@@ -1,5 +1,6 @@
 var documentEventListeners = { keydown: [], keyup: [] }; //for handling key events
-class Controller {
+import { clamp } from "./vector.mjs";
+export class Controller {
     input = "keyboard"; //or gamepad
     leftStick = new vec2(); leftAngle = -Math.PI / 2;
     rightStick = new vec2();
