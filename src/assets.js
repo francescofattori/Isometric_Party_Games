@@ -4,7 +4,7 @@ class AssetsManager {
         return this.cache.get(alias);
     }
     async load(alias, src, type, root = false) {
-        if (this.cache.has(type + ": " + alias)) return this.cache.get(alias);
+        if (this.cache.has(type + ": " + alias)) return this.cache.get(type + ": " + alias);
         if (root) src = __root__ + src;
         switch (type) {
             case "json": return this.#loadJSON(alias, src);
@@ -28,18 +28,21 @@ class AssetsManager {
         return await PIXI.Assets.load({ alias: alias, src: src + ".png", data: { scaleMode: "nearest" } });
     }
     async #loadSheetTexture(alias, src) {
-        if (PIXI.Assets.cache.has(alias)) return PIXI.Assets.cache.get(alias);
-        let sheetTexture = await PIXI.Assets.load({
-            alias: alias + "Sheet",
-            src: src + ".png",
-            data: { scaleMode: "nearest" }
-        });
-        PIXI.Assets.add({
-            alias: alias,
-            src: src + ".json",
-            data: { texture: sheetTexture }
-        });
-        let texture = await PIXI.Assets.load(alias);
+        let texture;
+        if (PIXI.Assets.cache.has(alias + "Tex")&&false) texture = PIXI.Assets.cache.get(alias + "Tex");
+        else {
+            let sheetTexture = await PIXI.Assets.load({
+                alias: alias + "Sheet",
+                src: src + ".png",
+                data: { scaleMode: "nearest" }
+            });
+            PIXI.Assets.add({
+                alias: alias + "Tex",
+                src: src + ".json",
+                data: { texture: sheetTexture }
+            });
+            texture = await PIXI.Assets.load(alias + "Tex");
+        }
         let data = await this.load(alias, src, "json");
         if (!data.info) return texture;
         for (const anim in texture.animations) {

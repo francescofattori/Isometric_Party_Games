@@ -1,13 +1,19 @@
 {
     "frames": {
-        "shadow": {
+        "big_shadow": {
             "frame": {"x":0,"y":0,"w":14,"h":9},
             "spriteSourceSize": {"x":0,"y":0,"w":14,"h":9},
             "sourceSize": {"w":14,"h":9},
             "anchor": {"x":0.5,"y":0.555}
         },
-        "small_shadow": {
+        "shadow": {
             "frame": {"x":14,"y":0,"w":14,"h":9},
+            "spriteSourceSize": {"x":0,"y":0,"w":14,"h":9},
+            "sourceSize": {"w":14,"h":9},
+            "anchor": {"x":0.5,"y":0.555}
+        },
+        "small_shadow": {
+            "frame": {"x":28,"y":0,"w":14,"h":9},
             "spriteSourceSize": {"x":0,"y":0,"w":14,"h":9},
             "sourceSize": {"w":14,"h":9},
             "anchor": {"x":0.5,"y":0.555}
@@ -15,11 +21,13 @@
     },
 
     "animations": {
+        "big_shadow": ["big_shadow"],
         "shadow": ["shadow"],
         "small_shadow": ["small_shadow"]
     },
 
     "info": {
+        "big_shadow": {"speed": 0.0, "loop": false},
         "shadow": {"speed": 0.0, "loop": false},
         "small_shadow": {"speed": 0.0, "loop": false}
     },

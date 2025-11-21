@@ -142,7 +142,10 @@ class Player {
         this.leftHand.sprite.scale = { x: this.dir * camera.zoom, y: camera.zoom };
         lHandPos.z = pos.z; this.leftHand.sprite.zIndex = camera.zIndex(lHandPos);
         //Shadow
-        let ray = new CANNON.Ray(new CANNON.Vec3(pos.x, pos.y, pos.z + 0.1), new CANNON.Vec3(pos.x, pos.y, pos.z - 10));
+        let ray = new CANNON.Ray(
+            new CANNON.Vec3(pos.x, pos.y, pos.z + 0.1),
+            new CANNON.Vec3(pos.x, pos.y, pos.z - 10)
+        );
         ray.mode = CANNON.RAY_MODES.CLOSEST;
         ray.skipBackfaces = true;
         let result = new CANNON.RaycastResult();
@@ -153,9 +156,9 @@ class Player {
             let shadowPos = { x: pos.x, y: pos.y, z: z };
             p = camera.worldToCanvas(shadowPos);
             this.shadow.x = p.x; this.shadow.y = p.y;
-            this.shadow.scale = { x: this.dir * camera.zoom, y: camera.zoom };
+            this.shadow.scale = { x: camera.zoom, y: camera.zoom };
             this.shadow.zIndex = p.zIndex;
-            if (this.shadow.zIndex > this.sprite.zIndex) //so that shadow is behind player
+            if (this.shadow.zIndex > this.sprite.zIndex) //so that shadow is behind sprite
                 this.shadow.zIndex = this.sprite.zIndex - 0.000001;
         } else {
             this.shadow.visible = false;

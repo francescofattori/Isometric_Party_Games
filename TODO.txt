@@ -1,4 +1,3 @@
--solve materials
--solve jump
--raycast shadow
+-remove all padding from sprites, not needed anymore
+-data such as info is already stored in textures, do not override
 -add rightStick with keyboard and mouse support with pointer
