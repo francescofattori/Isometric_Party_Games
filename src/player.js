@@ -26,9 +26,9 @@ class Player {
     }
     async load() {
         //Sprite management
-        this.texture = await assets.load("player", "/assets/sprites/player", "sheetTexture");
-        this.handTexture = await assets.load("hand", "/assets/sprites/hand", "texture");
-        this.shadowTexture = await assets.load("shadow", "/assets/sprites/shadow", "sheetTexture");
+        this.texture = await assets.load("player", "assets/sprites/player", "sheetTexture", true);
+        this.handTexture = await assets.load("hand", "assets/sprites/hand", "texture", true);
+        this.shadowTexture = await assets.load("shadow", "assets/sprites/shadow", "sheetTexture", true);
         this.sprite = new PIXI.AnimatedSprite(this.texture.animations.idle);
         this.sprite.animationSpeed = this.texture.animations.idle.speed;
         this.sprite.onFrameChange = () => {
