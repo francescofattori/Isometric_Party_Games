@@ -15,9 +15,10 @@ class Player {
         let downSphere = new CANNON.Sphere(0.25); downSphere.material = world.materials["player"];
         let cylinder = new CANNON.Cylinder(0.25, 0.25, 0.5); cylinder.material = world.materials["player"];
         downSphere.tag = "feet";
+        let q = new CANNON.Quaternion().setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * 0.5);
         this.rigidbody.addShape(upSphere, new CANNON.Vec3(0, 0, 0.25));
         this.rigidbody.addShape(downSphere, new CANNON.Vec3(0, 0, -0.25));
-        this.rigidbody.addShape(cylinder);
+        this.rigidbody.addShape(cylinder, new CANNON.Vec3(0, 0, 0), q);
         this.rigidbody.position.set(pos.x, pos.y, pos.z);
         this.collide = this.collide.bind(this);
         this.rigidbody.addEventListener("collide", this.collide);

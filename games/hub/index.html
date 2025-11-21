@@ -31,20 +31,37 @@
             overflow: hidden;
         }
     </style>
-    <script defer src="/include/geckos.io-client.3.0.2.min.js"></script>
-    <script defer src="/include/cannon-es.0.20.0.umd.min.js"></script>
-    <script defer src="/include/pixi.8.13.2.min.js"></script>
-    <script defer src="/src/vector.js"></script>
-    <script defer src="/src/scene.js"></script>
-    <script defer src="/src/camera.js"></script>
-    <script defer src="/src/assets.js"></script>
-    <script defer src="/src/global.js"></script>
-    <script defer src="/src/map.js"></script>
-    <script defer src="/src/entity.js"></script>
-    <script defer src="/src/controller.js"></script>
-    <script defer src="/src/player.js"></script>
-    <script defer src="/src/loop.js"></script>
-    <script defer src="main.js"></script>
+    <script id="geckos.io"></script>
+    <script id="cannon-es"></script>
+    <script id="pixi.js"></script>
+    <script id="vector"></script>
+    <script id="scene"></script>
+    <script id="camera"></script>
+    <script id="assets"></script>
+    <script id="global"></script>
+    <script id="map"></script>
+    <script id="entity"></script>
+    <script id="controller"></script>
+    <script id="player"></script>
+    <script id="loop"></script>
+    <script id="main"></script>
+    <script defer>
+        const __root__ = URL.parse("../../", location.href).href;
+        document.getElementById("geckos.io").src = __root__ + "include/geckos.io-client.3.0.2.min.js";
+        document.getElementById("cannon-es").src = __root__ + "include/cannon-es.0.20.0.umd.min.js";
+        document.getElementById("pixi.js").src = __root__ + "include/pixi.8.13.2.min.js";
+        document.getElementById("vector").src = __root__ + "src/vector.js";
+        document.getElementById("scene").src = __root__ + "src/scene.js";
+        document.getElementById("camera").src = __root__ + "src/camera.js";
+        document.getElementById("assets").src = __root__ + "src/assets.js";
+        document.getElementById("global").src = __root__ + "src/global.js";
+        document.getElementById("map").src = __root__ + "src/map.js";
+        document.getElementById("entity").src = __root__ + "src/entity.js";
+        document.getElementById("controller").src = __root__ + "src/controller.js";
+        document.getElementById("player").src = __root__ + "src/player.js";
+        document.getElementById("loop").src = __root__ + "src/loop.js";
+        document.getElementById("main").src = "main.js";
+    </script>
 </head>
 
 <body>
