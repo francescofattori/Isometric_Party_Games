@@ -1,3 +1,5 @@
 -remove all padding from sprites, not needed anymore
 -data such as info is already stored in textures, do not override
+-instead of importing * in src files import only necessary stuff
+-consider and manage asyncronous assets loading
 -add rightStick with keyboard and mouse support with pointer
