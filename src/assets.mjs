@@ -45,12 +45,6 @@ export class AssetsManager {
             });
             texture = await PIXI.Assets.load(alias + "Tex");
         }
-        let data = await this.load(alias, src, "json");
-        if (!data.info) return texture;
-        for (const anim in texture.animations) {
-            texture.animations[anim].speed = data.info[anim].speed;
-            texture.animations[anim].loop = data.info[anim].loop;
-        }
         return texture;
     }
 }

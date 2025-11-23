@@ -35,7 +35,8 @@ export class Player {
         this.handTexture = await assets.load("hand", "assets/sprites/hand", "texture", true);
         this.shadowTexture = await assets.load("shadow", "assets/sprites/shadow", "sheetTexture", true);
         this.sprite = new PIXI.AnimatedSprite(this.texture.animations.idle);
-        this.sprite.animationSpeed = this.texture.animations.idle.speed;
+        console.log(this.texture);
+        this.sprite.animationSpeed = this.texture.data.info.idle.speed;
         this.sprite.onFrameChange = () => {
             this.lastFrameChange = world.time;
             this.animChanged = false;
@@ -65,8 +66,8 @@ export class Player {
         if (anim == "" || this.animName == anim) return;
         this.animName = anim;
         this.sprite.textures = this.texture.animations[anim];
-        this.sprite.animationSpeed = this.texture.animations[anim].speed;
-        this.sprite.loop = this.texture.animations[anim].loop;
+        this.sprite.animationSpeed = this.texture.data.info[anim].speed;
+        this.sprite.loop = this.texture.data.info[anim].loop;
         this.sprite.play();
         this.animChanged = true;
     }
@@ -79,10 +80,13 @@ export class Player {
     update() {
         this.controller.genInputs();
         //Physics
-        let leftStick = this.controller.leftStick.rotated(-Math.PI / 4);
-        let speed = this.speed; if (this.controller.run) speed *= 1.33;
-        this.rigidbody.velocity.x = speed * leftStick.x;
-        this.rigidbody.velocity.y = speed * leftStick.y;
+        let velocity = this.controller.leftStick.rotated(-Math.PI / 4);
+        let speed = this.speed;
+        let scalar = this.controller.leftStick.scalar(this.controller.rightStick);
+        if (this.controller.run && scalar > 0.85) speed *= 1.33;
+        let percSpeed = (4 + this.controller.leftStick.scalar(this.controller.rightStick)) / 5.0;
+        this.rigidbody.velocity.x = percSpeed * speed * velocity.x;
+        this.rigidbody.velocity.y = percSpeed * speed * velocity.y;
         if (this.controller.jump && this.grounded) {
             this.anim = "jump";
             this.grounded = false;
@@ -93,15 +97,20 @@ export class Player {
         if (this.sprite.animationSpeed == 0) this.animCounter = 1;
         else this.animCounter *= this.sprite.animationSpeed * 60;
         this.animCounter = clamp(this.animCounter, 0, 1);
-        if (this.controller.leftStick.x < 0.0) this.dir = -1;
-        if (this.controller.leftStick.x > 0.0) this.dir = 1;
-        if (this.controller.leftStick.y > 0.0) this.back = true;
-        if (this.controller.leftStick.y < 0.0) this.back = false;
+        if (this.controller.rightStick.x < 0.0 ||
+            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x < 0.0)) this.dir = -1;
+        if (this.controller.rightStick.x > 0.0 ||
+            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x > 0.0)) this.dir = 1;
+        if (this.controller.rightStick.y > 0.0 ||
+            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y > 0.0)) this.back = true;
+        if (this.controller.rightStick.y < 0.0 ||
+            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y < 0.0)) this.back = false;
         if (this.grounded && this.anim != "land") {
             if (this.controller.leftStick.length() == 0) this.anim = "idle";
             else this.anim = "walk";
             let s = Math.abs(this.controller.leftStick.scalar(new vec2(0, 1)));
-            if (this.anim == "walk" && this.controller.run && s < 0.75) this.anim = "run";
+            if (this.anim == "walk" && this.controller.run && s < 0.75 && scalar > 0.85)
+                this.anim = "run";
         } else if (!this.grounded) {
             if (this.rigidbody.velocity.z < 0) this.anim = "fall";
             else if (this.anim != "jump") this.anim = "ascend";
@@ -122,8 +131,8 @@ export class Player {
         if (this.dir == -1) { pos.x *= -1; pos.y *= -1; } if (this.back) { pos.x *= -1; pos.y *= -1; }
         let base = new vec3(Player.handPos["base"][0]);
         if (this.anim == "run") base = new vec3(Player.handPos["base"][1]);
-        this.rightHand.pos = new vec3(base.x + pos.x, base.y + pos.y, base.z + pos.z).rotated(this.controller.leftAngle);
-        this.leftHand.pos = new vec3(-base.y - pos.x, -base.x - pos.y, base.z + pos.z).rotated(this.controller.leftAngle);
+        this.rightHand.pos = new vec3(base.x + pos.x, base.y + pos.y, base.z + pos.z).rotated(this.controller.rightAngle);
+        this.leftHand.pos = new vec3(-base.y - pos.x, -base.x - pos.y, base.z + pos.z).rotated(this.controller.rightAngle);
     }
     draw() {
         //Player
