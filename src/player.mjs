@@ -1,9 +1,10 @@
 import * as CANNON from "cannon";
 import * as PIXI from "pixi";
-import { pixi, world, camera, assets } from "./global.mjs";
+import { pixi, world, camera } from "./global.mjs";
+import { Entity } from "./entity.mjs";
 import { Controller } from "./controller.mjs"
 import { vec3, clamp } from "./vector.mjs";
-export class Player {
+export class Player extends Entity {
     anim = "idle"; animName = "idle";
     dir = 1; //1 means right, -1 means left
     back = false; //true means back
@@ -13,30 +14,22 @@ export class Player {
     lastFrameChange = 0; //last time the frame changed
     animCounter = 0; //from 0 to 1 progression in frame of animation
     animChanged = false; //true if this frame is the first after the animation changed
-    constructor(pos = new vec3()) {
-        this.controller = new Controller();
-        this.rigidbody = new CANNON.Body({ mass: 35, fixedRotation: true });
-        let upSphere = new CANNON.Sphere(0.25); upSphere.material = world.materials["player"];
-        let downSphere = new CANNON.Sphere(0.25); downSphere.material = world.materials["player"];
-        let cylinder = new CANNON.Cylinder(0.25, 0.25, 0.5); cylinder.material = world.materials["player"];
-        downSphere.tag = "feet";
-        let q = new CANNON.Quaternion().setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * 0.5);
-        this.rigidbody.addShape(upSphere, new CANNON.Vec3(0, 0, 0.25));
-        this.rigidbody.addShape(downSphere, new CANNON.Vec3(0, 0, -0.25));
-        this.rigidbody.addShape(cylinder, new CANNON.Vec3(0, 0, 0), q);
-        this.rigidbody.position.set(pos.x, pos.y, pos.z);
-        this.collide = this.collide.bind(this);
-        this.rigidbody.addEventListener("collide", this.collide);
-        world.addBody(this.rigidbody);
+    constructor(pos) {
+        super(pos);
     }
-    async load() {
-        //Sprite management
-        this.texture = await assets.load("player", "assets/sprites/player", "sheetTexture", true);
-        this.handTexture = await assets.load("hand", "assets/sprites/hand", "texture", true);
-        this.shadowTexture = await assets.load("shadow", "assets/sprites/shadow", "sheetTexture", true);
-        this.sprite = new PIXI.AnimatedSprite(this.texture.animations.idle);
-        console.log(this.texture);
-        this.sprite.animationSpeed = this.texture.data.info.idle.speed;
+    async getAssetsNames() {
+        if (this.assetsNames) return this.assetsNames;
+        this.assetsNames = [
+            { attribute: "spriteTexture", src: "assets/sprites/player.png", type: "sheetTexture", root: true },
+            { attribute: "shadowTexture", src: "assets/sprites/shadow.png", type: "sheetTexture", root: true },
+            { attribute: "handTexture", src: "assets/sprites/hand.png", type: "texture", root: true }
+        ];
+        return this.assetsNames;
+    }
+    initGraphics() {
+        let texture = this.assets.spriteTexture;
+        this.sprite = new PIXI.AnimatedSprite(texture.animations.idle);
+        this.sprite.animationSpeed = texture.data.info.idle.speed;
         this.sprite.onFrameChange = () => {
             this.lastFrameChange = world.time;
             this.animChanged = false;
@@ -51,26 +44,45 @@ export class Player {
         pixi.stage.addChild(this.sprite);
         this.sprite.play();
         //Hands
-        this.rightHand.sprite = new PIXI.Sprite(this.handTexture);
+        this.rightHand.sprite = new PIXI.Sprite(this.assets.handTexture);
         this.rightHand.sprite.anchor.set(0.5, 0.5);
-        this.leftHand.sprite = new PIXI.Sprite(this.handTexture);
+        this.leftHand.sprite = new PIXI.Sprite(this.assets.handTexture);
         this.leftHand.sprite.anchor.set(0.5, 0.5);
         pixi.stage.addChild(this.rightHand.sprite);
         pixi.stage.addChild(this.leftHand.sprite);
         //Shadow
-        this.shadow = new PIXI.AnimatedSprite(this.shadowTexture.animations.shadow);
+        this.shadow = new PIXI.AnimatedSprite(this.assets.shadowTexture.animations.shadow);
         this.shadow.alpha = 0.35;
         pixi.stage.addChild(this.shadow);
+    }
+    initPhysics() {
+        this.rigidbody = new CANNON.Body({ mass: 35, fixedRotation: true });
+        let upSphere = new CANNON.Sphere(0.25); upSphere.material = world.materials["player"];
+        let downSphere = new CANNON.Sphere(0.25); downSphere.material = world.materials["player"];
+        let cylinder = new CANNON.Cylinder(0.25, 0.25, 0.5); cylinder.material = world.materials["player"];
+        downSphere.tag = "feet";
+        let q = new CANNON.Quaternion().setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * 0.5);
+        this.rigidbody.addShape(upSphere, new CANNON.Vec3(0, 0, 0.25));
+        this.rigidbody.addShape(downSphere, new CANNON.Vec3(0, 0, -0.25));
+        this.rigidbody.addShape(cylinder, new CANNON.Vec3(0, 0, 0), q);
+        this.rigidbody.position.set(this.info.pos.x, this.info.pos.y, this.info.pos.z);
+        this.rigidbody.addEventListener("collide", this.collide);
+        world.addBody(this.rigidbody);
+    }
+    postInit() {
+        this.controller = new Controller();
     }
     setAnim(anim) {
         if (anim == "" || this.animName == anim) return;
         this.animName = anim;
-        this.sprite.textures = this.texture.animations[anim];
-        this.sprite.animationSpeed = this.texture.data.info[anim].speed;
-        this.sprite.loop = this.texture.data.info[anim].loop;
+        let texture = this.assets.spriteTexture;
+        this.sprite.textures = texture.animations[anim];
+        this.sprite.animationSpeed = texture.data.info[anim].speed;
+        this.sprite.loop = texture.data.info[anim].loop;
         this.sprite.play();
         this.animChanged = true;
     }
+    collide = this.collide.bind(this);
     collide(e) {
         if (e.body.tag == "ground" && e.contact.si.tag == "feet" && this.anim != "jump") {
             this.grounded = true;

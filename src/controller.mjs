@@ -3,7 +3,7 @@ import { clamp } from "./vector.mjs";
 export class Controller {
     input = "keyboard"; //or keyboardAndMouse or gamepad
     leftStick = new vec2(); leftAngle = -Math.PI / 2;
-    rightStick = new vec2();
+    rightStick = new vec2(); rightAngle = -Math.PI / 2;
     jump = false;
     afk = false; afkTime = undefined;
     prevTime = 0;

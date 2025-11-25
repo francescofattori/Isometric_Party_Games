@@ -1,6 +1,6 @@
 {
-    "map": { "src": "hub", "root": true },
+    "map": { "alias": "hub", "root": true },
     "entities": [
-        { "alias": "box", "src":"box", "pos": {"x": 0, "y": -1, "z": 4}, "root": true }
+        { "src": "box.json", "pos": {"x": 0, "y": -1, "z": 4}, "root": true }
     ]
 }

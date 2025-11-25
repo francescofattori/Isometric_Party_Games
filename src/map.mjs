@@ -3,29 +3,49 @@ import * as PIXI from "pixi";
 import { pixi, world, camera, assets } from "./global.mjs";
 import { vec2, vec3 } from "./vector.mjs";
 export class SceneMap {
-    async load(alias, root = false) {
-        let data = await assets.load("map_" + alias, "assets/maps/" + alias + "/" + alias, "json", root);
-        //Sprite management
-        let texture = await assets.load("map_" + alias, "assets/maps/" + alias + "/" + alias, "texture", root);
-        this.sprite = new PIXI.Sprite(texture); this.sprite.anchor.set(data.anchor.x / texture.width, data.anchor.y / texture.height);
+    constructor(alias, root) {
+        this.info = { alias: alias, root: root };
+    }
+    async getAssetsNames() {
+        if (this.assetsNames) return this.assetsNames;
+        let alias = this.info.alias; let root = this.info.root;
+        let folder = "assets/maps/" + alias + "/";
+        let info = await assets.load(folder + alias + ".json", "json", root);
+        this.assetsNames = [
+            { attribute: "texture", src: folder + alias + ".png", type: "texture", root: root }
+        ];
+        for (let i = 0; i < info.obstacles.length; i++) {
+            const obstacle = info.obstacles[i];
+            this.assetsNames.push({ attribute: i.toString(), src: folder + obstacle.src, type: "texture", root: root });
+        }
+        this.info = info;
+        return this.assetsNames;
+    }
+    async loadAssets() {
+        await this.getAssetsNames();
+        return await assets.loadObj(this.assetsNames);
+    }
+    async init() {
+        let loadedAssets = await this.loadAssets();
+        this.sprite = new PIXI.Sprite(loadedAssets.texture);
+        this.sprite.anchor.set(this.info.anchor.x / loadedAssets.texture.width, this.info.anchor.y / loadedAssets.texture.height);
         pixi.stage.addChild(this.sprite);
         this.obstacles = [];
-        for (const obstacle of data.obstacles) {
-            let obstacleTexture = await assets.load("map_" + alias + "_" + obstacle.sprite,
-                "assets/maps/" + alias + "/" + obstacle.sprite, "texture", root);
+        for (let i = 0; i < this.info.obstacles.length; i++) {
+            const obstacle = this.info.obstacles[i]; let obstacleTexture = loadedAssets[i.toString()];
             let sprite = new PIXI.Sprite(obstacleTexture);
             this.obstacles.push({ sprite: sprite, pos: new vec3(obstacle.pos) });
             sprite.anchor.set(obstacle.anchor.x / obstacleTexture.width, obstacle.anchor.y / obstacleTexture.height);
             pixi.stage.addChild(sprite);
         }
         //Depth calculations
-        this.size = data.size;
-        this.center = data.center;
+        this.size = this.info.size;
+        this.center = this.info.center;
         this.maxZIndex = 2.0 * (this.size.z - this.center.z) - this.center.x - this.center.y + 100;
         this.minZIndex = 2.0 * this.center.z - (this.size.x - this.center.x) - (this.size.y - this.center.y) - 100;
         this.multZIndex = 1.0 / (this.maxZIndex - this.minZIndex);
         //Collisions
-        this.heights = data.heights;
+        this.heights = this.info.heights;
         this.collider = new CANNON.Body({ type: CANNON.Body.STATIC });
         for (let i = 0; i < this.heights.length; i++) {
             const row = this.heights[i];
@@ -42,7 +62,6 @@ export class SceneMap {
         }
         this.collider.tag = "ground";
         world.addBody(this.collider);
-        this.draw();
     }
     draw() {
         let p = camera.worldToCanvas(new vec3(), false);

@@ -2,36 +2,52 @@ import * as CANNON from "cannon";
 import * as PIXI from "pixi";
 import { pixi, world, camera, assets } from "./global.mjs";
 export class Entity {
-    async load(alias, src, root = false) {
-        let data = await assets.load(alias, "assets/entities/" + src, "json", root);
-        this.rigidbody = new CANNON.Body({
-            mass: data.collider.mass,
-            fixedRotation: true,
-        });
-        let shape;
-        switch (data.collider.type) {
-            case "box":
-                shape = new CANNON.Box(new CANNON.Vec3(data.collider.size.x / 2, data.collider.size.y / 2, data.collider.size.z / 2));
-                break;
-        }
-        shape.material = world.materials[data.collider.material];
-        this.rigidbody.addShape(shape);
-        this.size = data.collider.size;
-        this.rigidbody.tag = "ground";
-        this.rigidbody.mass = data.collider.mass;
-        world.addBody(this.rigidbody);
-        //Sprite management
-        let texture = await assets.load(data.sprite, "assets/sprites/" + data.sprite, "texture", root);
-        this.shadowTexture = await assets.load("shadow", "assets/sprites/shadow", "sheetTexture", true);
-        this.sprite = new PIXI.Sprite(texture); this.sprite.anchor.set(0.5, 0.5);
-        if (data.anchor) { this.sprite.anchor.set(data.anchor.x / texture.width, data.anchor.y / texture.height); }
+    constructor(pos = new vec3(), src = "", root = false) {
+        this.info = { pos: pos, src: src, root: root };
+    }
+    async getAssetsNames() {
+        if (this.assetsNames) return this.assetsNames;
+        let info = await assets.load("assets/entities/" + this.info.src, "json", this.info.root);
+        this.assetsNames = [
+            { attribute: "spriteTexture", src: "assets/sprites/" + info.sprite.src, type: "texture", root: info.sprite.root },
+            { attribute: "shadowTexture", src: "assets/sprites/shadow.png", type: "sheetTexture", root: true }
+        ];
+        info.pos = this.info.pos; this.info = info;
+        return this.assetsNames;
+    }
+    async loadAssets() {
+        await this.getAssetsNames();
+        this.assets = await assets.loadObj(this.assetsNames);
+    }
+    initGraphics() {
+        let texture = this.assets.spriteTexture; this.sprite = new PIXI.Sprite(texture);
+        this.sprite.anchor.set(0.5, 0.5);
+        if (this.info.anchor) { this.sprite.anchor.set(this.info.anchor.x / texture.width, this.info.anchor.y / texture.height); }
         pixi.stage.addChild(this.sprite);
-        this.shadow = new PIXI.AnimatedSprite(this.shadowTexture.animations.big_shadow);
+        this.shadow = new PIXI.AnimatedSprite(this.assets.shadowTexture.animations.big_shadow);
         this.shadow.alpha = 0.35;
         pixi.stage.addChild(this.shadow);
     }
-    update() {
-
+    initPhysics() {
+        let collider = this.info.collider;
+        this.rigidbody = new CANNON.Body({ mass: collider.mass, fixedRotation: true });
+        let shape;
+        switch (collider.type) {
+            case "box":
+                shape = new CANNON.Box(new CANNON.Vec3(collider.size.x / 2, collider.size.y / 2, collider.size.z / 2));
+                break;
+        }
+        shape.material = world.materials[collider.material];
+        this.rigidbody.addShape(shape); this.size = collider.size;
+        this.rigidbody.tag = "ground"; this.rigidbody.mass = collider.mass;
+        this.rigidbody.position.set(this.info.pos.x, this.info.pos.y, this.info.pos.z);
+        world.addBody(this.rigidbody);
+    }
+    async init() {
+        await this.loadAssets();
+        this.initGraphics();
+        this.initPhysics();
+        this.postInit();
     }
     draw() {
         let pos = this.rigidbody.position;
@@ -64,4 +80,6 @@ export class Entity {
             this.shadow.visible = false;
         }
     }
+    postInit() { }
+    update() { }
 }

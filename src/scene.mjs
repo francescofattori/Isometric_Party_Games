@@ -1,27 +1,43 @@
-import { pixi, world, assets, htmlViewport } from "./global.mjs";
+import { pixi, world, assets, htmlViewport, scene } from "./global.mjs";
 import { SceneMap } from "./map.mjs";
 import { Entity } from "./entity.mjs";
-import { update } from "./loop.mjs";
 export class Scene {
-    state = "inactive";
-    map = undefined;
-    entities = [];
-    cache = new Map();
-    async load(alias, root = false) {
-        let data = await assets.load("scene_" + alias, "assets/scenes/" + alias, "json", root);
-        this.map = new SceneMap(); await this.map.load(data.map.src, data.map.root);
-        for (const _entity of data.entities) {
-            if (_entity.type == "player") {
-                let player = new Player(_entity.pos); await player.load();
-                this.add(player);
-            } else {
-                let entity = new Entity(); await entity.load(_entity.alias, _entity.src, _entity.root);
-                this.add(entity);
-                entity.rigidbody.position.set(_entity.pos.x, _entity.pos.y, _entity.pos.z);
-            }
+    state = "inactive"; map = undefined; entities = [];
+    constructor(alias, root = false) {
+        this.info = { alias: alias, root: root };
+    }
+    async getAssetsNames() {
+        let info = await assets.load("assets/scenes/" + this.info.alias + ".json", "json", this.info.root);
+        let assetsNames = [await new SceneMap(info.map.alias, info.map.root).getAssetsNames()];
+        for (const entity of info.entities) {
+            assetsNames.push(await new Entity(entity.pos, entity.src, entity.root).getAssetsNames());
+        }
+        this.info = info;
+        return assetsNames;
+    }
+    async loadAssets() {
+        this.loaded = true;
+        await assets.loadObj(await this.getAssetsNames());
+    }
+    async init() {
+        if (!this.loaded) await this.loadAssets();
+        this.map = new SceneMap(this.info.map.alias, this.info.map.root); await this.map.init();
+        for (const _entity of this.info.entities) {
+            let entity = new Entity(_entity.pos, _entity.src, _entity.root); await entity.init();
+            this.add(entity);
         }
     }
-    add(entity) { this.entities.push(entity); }
+    async load(alias, root = false) {
+        this.info = { alias: alias, root: root };
+        await this.loadAssets();
+        await this.init();
+    }
+    set(other) {
+        this.map = other.map; this.entities = other.entities;
+    }
+    add(entity) {
+        this.entities.push(entity);
+    }
     draw = this.draw.bind(this);
     draw() {
         //DEBUG
@@ -46,20 +62,22 @@ export class Scene {
         world.step(world.dt, t - world.lastUpdate);
         world.lastUpdate = t;
     }
-    static enterLoop() {//starts physics loop
+    enterLoop() {//starts physics loop
         let t = performance.now();
-        update(); world.updateTime = (performance.now() - t);
+        this.update(); world.updateTime = (performance.now() - t);
         if (!world.run) return;
-        setTimeout(Scene.enterLoop, (world.dt * 1000.0) - world.updateTime);
+        setTimeout(() => { this.enterLoop(); }, (world.dt * 1000.0) - world.updateTime);
     }
     play() {
+        if (this != scene) return;
         this.state = "active";
         htmlViewport.style.opacity = "1";
         world.run = true;
-        Scene.enterLoop();
+        this.enterLoop();
         pixi.ticker.add(this.draw);
     }
     stop() {
+        if (this != scene) return;
         this.state = "inactive";
         htmlViewport.style.opacity = "0";
         world.run = false;
