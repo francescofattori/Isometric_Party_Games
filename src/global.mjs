@@ -13,16 +13,18 @@ export const scene = new Scene();
 export const camera = new Camera();
 export const assets = new AssetsManager();
 //HTML
-export const htmlViewport = document.getElementById("viewport");
-export const htmlPixelPerfectView = document.getElementById("pixelPerfectView");
 export const htmlStats = document.getElementById("stats");
 //Init
 export async function initPixi() {
-    await pixi.init({ background: "#1099bb", resizeTo: htmlPixelPerfectView });
-    htmlPixelPerfectView.appendChild(pixi.canvas);
+    await pixi.init({
+        background: "#1099bb", autoDensity: true,
+        resolution: window.devicePixelRatio
+    });
+    document.body.appendChild(pixi.canvas);
     window.onresize = () => {
-        htmlPixelPerfectView.style.width = 2 * Math.round(htmlViewport.clientWidth / 2) + "px";
-        htmlPixelPerfectView.style.height = 2 * Math.round(htmlViewport.clientHeight / 2) + "px";
+        let w = window.innerWidth * window.devicePixelRatio; let h = window.innerHeight * window.devicePixelRatio;
+        w = 2 * Math.round(w / 2) / window.devicePixelRatio; h = 2 * Math.round(h / 2) / window.devicePixelRatio;
+        pixi.renderer.resize(w, h);
     };
     window.onresize();
     pixi.resize();

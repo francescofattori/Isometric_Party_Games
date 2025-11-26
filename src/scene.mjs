@@ -1,4 +1,4 @@
-import { pixi, world, assets, htmlViewport, scene } from "./global.mjs";
+import { pixi, world, assets, scene } from "./global.mjs";
 import { SceneMap } from "./map.mjs";
 import { Entity } from "./entity.mjs";
 export class Scene {
@@ -71,7 +71,7 @@ export class Scene {
     play() {
         if (this != scene) return;
         this.state = "active";
-        htmlViewport.style.opacity = "1";
+        document.body.style.opacity = "1";
         world.run = true;
         this.enterLoop();
         pixi.ticker.add(this.draw);
