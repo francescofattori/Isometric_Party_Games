@@ -1,19 +1,13 @@
 import * as CANNON from "cannon";
-import * as PIXI from "pixi";
-import { pixi, world, camera } from "./global.mjs";
+import { world, camera } from "./global.mjs";
 import { Entity } from "./entity.mjs";
 import { Controller } from "./controller.mjs"
-import { vec3, clamp } from "./vector.mjs";
+import { vec3 } from "./vector.mjs";
+import { Sprite } from "./sprite.mjs";
 export class Player extends Entity {
-    anim = "idle"; animName = "idle";
-    dir = 1; //1 means right, -1 means left
-    back = false; //true means back
     speed = 3.5; jumpForce = 10; grounded = false;
     rightHand = { sprite: undefined, pos: new vec3() };
     leftHand = { sprite: undefined, pos: new vec3() };
-    lastFrameChange = 0; //last time the frame changed
-    animCounter = 0; //from 0 to 1 progression in frame of animation
-    animChanged = false; //true if this frame is the first after the animation changed
     constructor(pos) {
         super(pos);
     }
@@ -26,34 +20,22 @@ export class Player extends Entity {
         ];
         return this.assetsNames;
     }
+    async init() {
+        await super.init();
+        this.controller = new Controller();
+    }
     initGraphics() {
         let texture = this.assets.spriteTexture;
-        this.sprite = new PIXI.AnimatedSprite(texture.animations.idle);
-        this.sprite.animationSpeed = texture.data.info.idle.speed;
-        this.sprite.onFrameChange = () => {
-            this.lastFrameChange = world.time;
-            this.animChanged = false;
-        };
-        this.sprite.onFrameChange = this.sprite.onFrameChange.bind(this);
-        this.sprite.onComplete = () => {
-            switch (this.anim) {
-                case "land": this.anim = "idle"; break;
+        this.sprite = new Sprite(texture);
+        this.sprite.onComplete(() => {
+            switch (this.sprite.anim) {
+                case "land": this.sprite.anim = "idle"; break;
             }
-        };
-        this.sprite.onComplete = this.sprite.onComplete.bind(this);
-        pixi.stage.addChild(this.sprite);
-        this.sprite.play();
-        //Hands
-        this.rightHand.sprite = new PIXI.Sprite(this.assets.handTexture);
-        this.rightHand.sprite.anchor.set(0.5, 0.5);
-        this.leftHand.sprite = new PIXI.Sprite(this.assets.handTexture);
-        this.leftHand.sprite.anchor.set(0.5, 0.5);
-        pixi.stage.addChild(this.rightHand.sprite);
-        pixi.stage.addChild(this.leftHand.sprite);
-        //Shadow
-        this.shadow = new PIXI.AnimatedSprite(this.assets.shadowTexture.animations.shadow);
+        });
+        this.shadow = new Sprite(this.assets.shadowTexture);
         this.shadow.alpha = 0.35;
-        pixi.stage.addChild(this.shadow);
+        this.rightHand.sprite = new Sprite(this.assets.handTexture);
+        this.leftHand.sprite = new Sprite(this.assets.handTexture);
     }
     initPhysics() {
         this.rigidbody = new CANNON.Body({ mass: 35, fixedRotation: true });
@@ -65,28 +47,16 @@ export class Player extends Entity {
         this.rigidbody.addShape(upSphere, new CANNON.Vec3(0, 0, 0.25));
         this.rigidbody.addShape(downSphere, new CANNON.Vec3(0, 0, -0.25));
         this.rigidbody.addShape(cylinder, new CANNON.Vec3(0, 0, 0), q);
+        this.size = new vec3(0.5, 0.5, 1);
         this.rigidbody.position.set(this.info.pos.x, this.info.pos.y, this.info.pos.z);
         this.rigidbody.addEventListener("collide", this.collide);
         world.addBody(this.rigidbody);
     }
-    postInit() {
-        this.controller = new Controller();
-    }
-    setAnim(anim) {
-        if (anim == "" || this.animName == anim) return;
-        this.animName = anim;
-        let texture = this.assets.spriteTexture;
-        this.sprite.textures = texture.animations[anim];
-        this.sprite.animationSpeed = texture.data.info[anim].speed;
-        this.sprite.loop = texture.data.info[anim].loop;
-        this.sprite.play();
-        this.animChanged = true;
-    }
     collide = this.collide.bind(this);
     collide(e) {
-        if (e.body.tag == "ground" && e.contact.si.tag == "feet" && this.anim != "jump") {
+        if (e.body.tag == "ground" && e.contact.si.tag == "feet" && this.sprite.anim != "jump") {
             this.grounded = true;
-            if (this.anim == "fall") this.anim = "land";
+            if (this.sprite.anim == "fall") this.sprite.anim = "land";
         }
     }
     update() {
@@ -100,95 +70,61 @@ export class Player extends Entity {
         this.rigidbody.velocity.x = percSpeed * speed * velocity.x;
         this.rigidbody.velocity.y = percSpeed * speed * velocity.y;
         if (this.controller.jump && this.grounded) {
-            this.anim = "jump";
+            this.sprite.anim = "jump";
             this.grounded = false;
             this.rigidbody.velocity.z += this.jumpForce;
         }
         //Graphics
-        this.animCounter = (world.time - this.lastFrameChange);
-        if (this.sprite.animationSpeed == 0) this.animCounter = 1;
-        else this.animCounter *= this.sprite.animationSpeed * 60;
-        this.animCounter = clamp(this.animCounter, 0, 1);
         if (this.controller.rightStick.x < 0.0 ||
-            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x < 0.0)) this.dir = -1;
+            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x < 0.0)) this.sprite.flip.x = -1;
         if (this.controller.rightStick.x > 0.0 ||
-            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x > 0.0)) this.dir = 1;
+            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x > 0.0)) this.sprite.flip.x = 1;
         if (this.controller.rightStick.y > 0.0 ||
-            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y > 0.0)) this.back = true;
+            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y > 0.0)) this.sprite.back = true;
         if (this.controller.rightStick.y < 0.0 ||
-            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y < 0.0)) this.back = false;
-        if (this.grounded && this.anim != "land") {
-            if (this.controller.leftStick.length() == 0) this.anim = "idle";
-            else this.anim = "walk";
+            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y < 0.0)) this.sprite.back = false;
+        if (this.grounded && this.sprite.anim != "land") {
+            if (this.controller.leftStick.length() == 0) this.sprite.anim = "idle";
+            else this.sprite.anim = "walk";
             let s = Math.abs(this.controller.leftStick.scalar(new vec2(0, 1)));
-            if (this.anim == "walk" && this.controller.run && s < 0.75 && scalar > 0.85)
-                this.anim = "run";
+            if (this.sprite.anim == "walk" && this.controller.run && s < 0.75 && scalar > 0.85)
+                this.sprite.anim = "run";
         } else if (!this.grounded) {
-            if (this.rigidbody.velocity.z < 0) this.anim = "fall";
-            else if (this.anim != "jump") this.anim = "ascend";
+            if (this.rigidbody.velocity.z < 0) this.sprite.anim = "fall";
+            else if (this.sprite.anim != "jump") this.sprite.anim = "ascend";
         }
-        if (world.time - this.controller.afkTime > 10) this.anim = "sit";
-        this.updateHands();
+        if (world.time - this.controller.afkTime > 10) this.sprite.anim = "sit";
     }
-    updateHands() {
-        let animLength = Player.handPos[this.anim].length;
-        let targetPos = Player.handPos[this.anim][this.sprite.currentFrame];
-        let prevPos = Player.handPos[this.anim][(this.sprite.currentFrame + animLength - 1) % animLength];
+    calcHandsPos() {
+        let anim = this.sprite.anim;
+        let animLength = Player.handPos[anim].length;
+        let targetPos = Player.handPos[anim][this.sprite.currentFrame];
+        let prevPos = Player.handPos[anim][(this.sprite.currentFrame + animLength - 1) % animLength];
         if (targetPos == undefined) {
-            targetPos = Player.handPos[this.anim][0];
-            prevPos = Player.handPos[this.anim][animLength - 1];
+            targetPos = Player.handPos[anim][0];
+            prevPos = Player.handPos[anim][animLength - 1];
         }
-        if (this.animChanged) prevPos = targetPos;
-        let pos = prevPos.lerp(targetPos, 2 * this.animCounter);
-        if (this.dir == -1) { pos.x *= -1; pos.y *= -1; } if (this.back) { pos.x *= -1; pos.y *= -1; }
+        if (this.sprite.animChanged) prevPos = targetPos;
+        let pos = prevPos.lerp(targetPos, 2 * this.sprite.animCounter);
+        if (this.sprite.flip.x == -1) { pos.x *= -1; pos.y *= -1; } if (this.sprite.back) { pos.x *= -1; pos.y *= -1; }
         let base = new vec3(Player.handPos["base"][0]);
-        if (this.anim == "run") base = new vec3(Player.handPos["base"][1]);
+        if (this.sprite.anim == "run") base = new vec3(Player.handPos["base"][1]);
         this.rightHand.pos = new vec3(base.x + pos.x, base.y + pos.y, base.z + pos.z).rotated(this.controller.rightAngle);
         this.leftHand.pos = new vec3(-base.y - pos.x, -base.x - pos.y, base.z + pos.z).rotated(this.controller.rightAngle);
     }
-    draw() {
-        //Player
-        let pos = this.rigidbody.position;
-        pos = { x: pos.x, y: pos.y, z: pos.z - 0.5 };
-        let p = camera.worldToCanvas(pos);
-        this.sprite.x = p.x; this.sprite.y = p.y;
-        this.sprite.scale = { x: this.dir * camera.zoom, y: camera.zoom };
-        this.sprite.zIndex = p.zIndex;
-        if (this.back) this.setAnim("back_" + this.anim);
-        else this.setAnim(this.anim);
-        //Hands
+    drawHands() {
+        let pos = new vec3(this.rigidbody.position).minus(0, 0, this.size.z * 0.5);
+        this.calcHandsPos();
         let rHandPos = this.rightHand.pos.plus(pos);
-        p = camera.worldToCanvas(rHandPos, false);
-        this.rightHand.sprite.x = p.x; this.rightHand.sprite.y = p.y;
-        this.rightHand.sprite.scale = { x: this.dir * camera.zoom, y: camera.zoom };
+        this.rightHand.sprite.draw(rHandPos, false);
         rHandPos.z = pos.z; this.rightHand.sprite.zIndex = camera.zIndex(rHandPos);
         let lHandPos = this.leftHand.pos.plus(pos);
-        p = camera.worldToCanvas(lHandPos, false);
-        this.leftHand.sprite.x = p.x; this.leftHand.sprite.y = p.y;
-        this.leftHand.sprite.scale = { x: this.dir * camera.zoom, y: camera.zoom };
+        this.leftHand.sprite.draw(lHandPos, false);
         lHandPos.z = pos.z; this.leftHand.sprite.zIndex = camera.zIndex(lHandPos);
-        //Shadow
-        let ray = new CANNON.Ray(
-            new CANNON.Vec3(pos.x, pos.y, pos.z + 0.1),
-            new CANNON.Vec3(pos.x, pos.y, pos.z - 10)
-        );
-        ray.mode = CANNON.RAY_MODES.CLOSEST;
-        ray.skipBackfaces = true;
-        let result = new CANNON.RaycastResult();
-        ray.intersectBodies(world.bodies, result);
-        let z = result.hitPointWorld.z;
-        if (result.hasHit) {
-            this.shadow.visible = true;
-            let shadowPos = { x: pos.x, y: pos.y, z: z };
-            p = camera.worldToCanvas(shadowPos);
-            this.shadow.x = p.x; this.shadow.y = p.y;
-            this.shadow.scale = { x: camera.zoom, y: camera.zoom };
-            this.shadow.zIndex = p.zIndex;
-            if (this.shadow.zIndex > this.sprite.zIndex) //so that shadow is behind sprite
-                this.shadow.zIndex = this.sprite.zIndex - 0.000001;
-        } else {
-            this.shadow.visible = false;
-        }
+    }
+    draw() {
+        super.draw();
+        this.drawHands();
     }
     static handPos = {
         base: [new vec3(-0.124, -0.126, 0.31), new vec3(-0.064, -0.186, 0.31)],//BasePos

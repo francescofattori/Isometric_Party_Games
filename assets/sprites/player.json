@@ -216,6 +216,7 @@
     },
 
     "info": {
+        "default": "idle",
         "idle":     {"speed": 0.033, "loop": true},
         "walk":     {"speed": 0.11,   "loop": true},
         "run":      {"speed": 0.14,   "loop": true},

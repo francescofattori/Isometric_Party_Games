@@ -27,6 +27,7 @@
     },
 
     "info": {
+        "default": "shadow",
         "big_shadow": {"speed": 0.0, "loop": false},
         "shadow": {"speed": 0.0, "loop": false},
         "small_shadow": {"speed": 0.0, "loop": false}

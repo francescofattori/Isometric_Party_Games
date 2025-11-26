@@ -1,6 +1,6 @@
 import * as CANNON from "cannon";
-import * as PIXI from "pixi";
-import { pixi, world, camera, assets } from "./global.mjs";
+import { world, assets } from "./global.mjs";
+import { Sprite } from "./sprite.mjs";
 export class Entity {
     constructor(pos = new vec3(), src = "", root = false) {
         this.info = { pos: pos, src: src, root: root };
@@ -20,13 +20,10 @@ export class Entity {
         this.assets = await assets.loadObj(this.assetsNames);
     }
     initGraphics() {
-        let texture = this.assets.spriteTexture; this.sprite = new PIXI.Sprite(texture);
-        this.sprite.anchor.set(0.5, 0.5);
-        if (this.info.anchor) { this.sprite.anchor.set(this.info.anchor.x / texture.width, this.info.anchor.y / texture.height); }
-        pixi.stage.addChild(this.sprite);
-        this.shadow = new PIXI.AnimatedSprite(this.assets.shadowTexture.animations.big_shadow);
+        this.sprite = new Sprite(this.assets.spriteTexture, this.info.anchor);
+        this.shadow = new Sprite(this.assets.shadowTexture);
+        this.shadow.anim = "big_shadow";
         this.shadow.alpha = 0.35;
-        pixi.stage.addChild(this.shadow);
     }
     initPhysics() {
         let collider = this.info.collider;
@@ -47,17 +44,8 @@ export class Entity {
         await this.loadAssets();
         this.initGraphics();
         this.initPhysics();
-        this.postInit();
     }
-    draw() {
-        let pos = this.rigidbody.position;
-        pos = { x: pos.x, y: pos.y, z: pos.z - this.size.z / 2 };
-        let p = camera.worldToCanvas(pos);
-        this.sprite.x = p.x;
-        this.sprite.y = p.y;
-        this.sprite.scale = new vec2(1.0, 1.0).times(camera.zoom);
-        this.sprite.zIndex = p.zIndex;
-        //Shadow (the same as player, merge)
+    drawShadow(pos){
         let ray = new CANNON.Ray(
             new CANNON.Vec3(pos.x, pos.y, pos.z + 0.1),
             new CANNON.Vec3(pos.x, pos.y, pos.z - 10)
@@ -70,16 +58,18 @@ export class Entity {
         if (result.hasHit) {
             this.shadow.visible = true;
             let shadowPos = { x: pos.x, y: pos.y, z: z };
-            p = camera.worldToCanvas(shadowPos);
-            this.shadow.x = p.x; this.shadow.y = p.y;
-            this.shadow.scale = { x: camera.zoom, y: camera.zoom };
-            this.shadow.zIndex = p.zIndex;
+            this.shadow.draw(shadowPos);
             if (this.shadow.zIndex > this.sprite.zIndex) //so that shadow is behind sprite
                 this.shadow.zIndex = this.sprite.zIndex - 0.000001;
         } else {
             this.shadow.visible = false;
         }
     }
-    postInit() { }
+    draw() {
+        let pos = this.rigidbody.position;
+        pos = { x: pos.x, y: pos.y, z: pos.z - this.size.z / 2 };
+        this.sprite.draw(pos);
+        this.drawShadow(pos);
+    }
     update() { }
 }
