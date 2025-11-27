@@ -17,17 +17,10 @@ export const htmlStats = document.getElementById("stats");
 //Init
 export async function initPixi() {
     await pixi.init({
-        background: "#1099bb", autoDensity: true,
-        resolution: window.devicePixelRatio
+        background: "#1099bb", resizeTo: window,
+        autoDensity: true, resolution: window.devicePixelRatio
     });
     document.body.appendChild(pixi.canvas);
-    window.onresize = () => {
-        let w = window.innerWidth * window.devicePixelRatio; let h = window.innerHeight * window.devicePixelRatio;
-        w = 2 * Math.round(w / 2) / window.devicePixelRatio; h = 2 * Math.round(h / 2) / window.devicePixelRatio;
-        pixi.renderer.resize(w, h);
-    };
-    window.onresize();
-    pixi.resize();
 }
 export async function initCannon(materialsSrc, root = false) {
     world.gravity = new CANNON.Vec3(0, 0, -40);

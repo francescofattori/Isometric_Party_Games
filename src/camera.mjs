@@ -16,8 +16,8 @@ export class Camera {
         let x = 0.5 * (p.x - p.y);
         let y = 0.5 * p.z + 0.25 * (p.x + p.y);
         let v = new vec2(
-            pixi.screen.width * 0.5 + x * pixPerUnit * this._zoom,
-            pixi.screen.height * 0.5 - y * pixPerUnit * this._zoom
+            Math.floor(pixi.screen.width * 0.5) + x * pixPerUnit * this._zoom,
+            Math.floor(pixi.screen.height * 0.5) - y * pixPerUnit * this._zoom
         );
         if (zIndex) v.zIndex = this.zIndex(p);
         return v;
