@@ -1,2 +1,2 @@
--add mouse support with pointer as right stick
 -camera following support
+-add mouse support with pointer as right stick

@@ -57,7 +57,8 @@ export class Scene {
         for (let entity of this.entities) { entity.draw(); }
     }
     update() {
-        for (let entity of this.entities) { entity.update(); }
+        for (const entity of this.entities) { entity.update(); }
+        camera.update();
         let t = performance.now() / 1000.0;
         world.step(world.dt, t - world.lastUpdate);
         world.lastUpdate = t;

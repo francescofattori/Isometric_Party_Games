@@ -6,6 +6,7 @@ async function main() {
     await initPixi();
     await scene.load("hub", true);
     let player = new Player(new vec3(0, 0, 5)); await player.init();
+    camera.target = player.pos;
     scene.add(player);
     scene.play();
 }

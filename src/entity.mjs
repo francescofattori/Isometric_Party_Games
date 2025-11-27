@@ -2,6 +2,7 @@ import * as CANNON from "cannon";
 import { world, assets } from "./global.mjs";
 import { Sprite } from "./sprite.mjs";
 export class Entity {
+    get pos() { return this.rigidbody.position; }
     constructor(pos = new vec3(), src = "", root = false) {
         this.info = { pos: pos, src: src, root: root };
     }
