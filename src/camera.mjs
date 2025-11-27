@@ -32,6 +32,7 @@ export class Camera {
         let xDiff = 0.5 * ((this.target.x - this.target.y) - (this.pos.x - this.pos.y));
         let yDiff = 0.5 * ((this.target.x + this.target.y) - (this.pos.x + this.pos.y));
         let zDiff = this.target.z - this.pos.z;
+        if (this.target.z < scene.map.size.z) zDiff = 0;
         let xS = Math.sign(xDiff) | 0, yS = Math.sign(yDiff) | 0, zS = Math.sign(zDiff) | 0;
         if (xS * xDiff > this.softZone.x) {
             this.pos.x += this.speed * xS * world.dt; this.pos.y -= this.speed * xS * world.dt;
