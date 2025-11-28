@@ -38,6 +38,7 @@ export class AssetsManager {
         return texture;
     }
     async load(src, type, root = false) {
+        src = "assets/" + src;
         if (this.cache.has(src)) return this.cache.get(src);
         if (root) src = __root + src;
         switch (type) {
@@ -60,5 +61,9 @@ export class AssetsManager {
                 resolve(obj);
             });
         });
+    }
+    async loadUI(src = "ui.json", root = true) {
+        let data = await this.load(src, "json", root);
+        this.ui = await this.loadObj(data);
     }
 }

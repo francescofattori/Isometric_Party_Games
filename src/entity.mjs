@@ -8,10 +8,10 @@ export class Entity {
     }
     async getAssetsNames() {
         if (this.assetsNames) return this.assetsNames;
-        let info = await assets.load("assets/entities/" + this.info.src, "json", this.info.root);
+        let info = await assets.load("entities/" + this.info.src, "json", this.info.root);
         this.assetsNames = [
-            { attribute: "spriteTexture", src: "assets/sprites/" + info.sprite.src, type: "texture", root: info.sprite.root },
-            { attribute: "shadowTexture", src: "assets/sprites/shadow.png", type: "sheetTexture", root: true }
+            { attribute: "spriteTexture", src: "sprites/" + info.sprite.src, type: "texture", root: info.sprite.root },
+            { attribute: "shadowTexture", src: "sprites/shadow.png", type: "sheetTexture", root: true }
         ];
         info.pos = this.info.pos; this.info = info;
         return this.assetsNames;

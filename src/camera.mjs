@@ -1,6 +1,6 @@
 import { pixi, scene, world } from "./global.mjs";
 import { vec2, vec3 } from "./vector.mjs";
-const pixPerUnit = 32;
+export const pixPerUnit = 32;
 export class Camera {
     pos = new vec3();
     target = new vec3();

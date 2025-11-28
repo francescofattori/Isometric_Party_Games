@@ -1,0 +1,8 @@
+[
+    {
+        "attribute": "marker",
+        "src": "ui/marker.png",
+        "type": "texture",
+        "root": true
+    }
+]

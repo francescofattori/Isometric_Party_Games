@@ -6,7 +6,7 @@ import { AssetsManager } from "./assets.mjs";
 export function makeObjectGlobal(obj) {
     Object.entries(obj).forEach(([name, exported]) => window[name] = exported);
 }
-export const __root = URL.parse("../../", location.href).href;
+export const __root = ("parse" in URL) ? URL.parse("../../", location.href).href : location.href + "../../";
 export const pixi = new PIXI.Application();
 export const world = new CANNON.World();
 export const scene = new Scene();
@@ -18,8 +18,10 @@ export const htmlStats = document.getElementById("stats");
 export async function initPixi() {
     await pixi.init({
         background: "#1099bb", resizeTo: window,
-        autoDensity: true, resolution: window.devicePixelRatio
+        autoDensity: true, resolution: window.devicePixelRatio,
+        //roundPixels: true
     });
+    await assets.loadUI();
     document.body.appendChild(pixi.canvas);
 }
 export async function initCannon(materialsSrc, root = false) {
@@ -29,7 +31,7 @@ export async function initCannon(materialsSrc, root = false) {
     world.run = true; world.dt = 1.0 / 200.0;
     world.materials = {};
     if (materialsSrc != undefined) {
-        let data = await assets.load("assets/" + materialsSrc, "json", root);
+        let data = await assets.load(materialsSrc, "json", root);
         for (const name of data.names) { world.materials[name] = new CANNON.Material(name); }
         for (let i = 0; i < data.table.length; i++) {
             const row = data.table[i];
@@ -50,3 +52,4 @@ export async function initCannon(materialsSrc, root = false) {
 export { Player } from "./player.mjs"
 export { vec2, vec3 } from "./vector.mjs";
 export { Scene } from "./scene.mjs";
+export { Controller } from "./controller.mjs"

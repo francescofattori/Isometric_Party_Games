@@ -9,7 +9,7 @@ export class SceneMap {
     async getAssetsNames() {
         if (this.assetsNames) return this.assetsNames;
         let alias = this.info.alias; let root = this.info.root;
-        let folder = "assets/maps/" + alias + "/";
+        let folder = "maps/" + alias + "/";
         let info = await assets.load(folder + alias + ".json", "json", root);
         this.assetsNames = [
             { attribute: "texture", src: folder + alias + ".png", type: "texture", root: root }
@@ -41,6 +41,7 @@ export class SceneMap {
         //Depth calculations
         this.size = this.info.size;
         this.center = this.info.center;
+        this.maxHeight = 10;
         this.maxZIndex = 2.0 * (this.size.z - this.center.z) - this.center.x - this.center.y + 100;
         this.minZIndex = 2.0 * this.center.z - (this.size.x - this.center.x) - (this.size.y - this.center.y) - 100;
         this.multZIndex = 1.0 / (this.maxZIndex - this.minZIndex);

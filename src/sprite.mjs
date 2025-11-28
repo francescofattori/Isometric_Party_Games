@@ -12,6 +12,10 @@ export class Sprite {
     get zIndex() { return this.pixiSprite.zIndex; } set zIndex(v) { this.pixiSprite.zIndex = v; }
     set alpha(v) { this.pixiSprite.alpha = v; }
     set visible(v) { this.pixiSprite.visible = v; }
+    set rotation(v) { this.pixiSprite.rotation = -v; }
+    get rotation() { return -this.pixiSprite.rotation; }
+    get skew() { return this.pixiSprite.skew; }
+    set skew(v) { this.pixiSprite.skew = v; }
     constructor(texture, anchor = undefined) {
         this.texture = texture;
         if (texture.animations) {

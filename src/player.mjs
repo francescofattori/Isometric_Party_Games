@@ -14,9 +14,9 @@ export class Player extends Entity {
     async getAssetsNames() {
         if (this.assetsNames) return this.assetsNames;
         this.assetsNames = [
-            { attribute: "spriteTexture", src: "assets/sprites/player.png", type: "sheetTexture", root: true },
-            { attribute: "shadowTexture", src: "assets/sprites/shadow.png", type: "sheetTexture", root: true },
-            { attribute: "handTexture", src: "assets/sprites/hand.png", type: "texture", root: true }
+            { attribute: "spriteTexture", src: "sprites/player.png", type: "sheetTexture", root: true },
+            { attribute: "shadowTexture", src: "sprites/shadow.png", type: "sheetTexture", root: true },
+            { attribute: "handTexture", src: "sprites/hand.png", type: "texture", root: true }
         ];
         return this.assetsNames;
     }
@@ -125,6 +125,7 @@ export class Player extends Entity {
     draw() {
         super.draw();
         this.drawHands();
+        this.controller.draw();
     }
     static handPos = {
         base: [new vec3(-0.124, -0.126, 0.31), new vec3(-0.064, -0.186, 0.31)],//BasePos

@@ -25,12 +25,12 @@
         }
     </style>
     <script>
-        const root = URL.parse("../../", location.href).href;
+        let root = ("parse" in URL) ? URL.parse("../../", location.href).href : location.href + "../../";
         const importmap = {
             imports: {
-                global: root + "/src/global.mjs",
-                pixi: root + "/include/pixi.8.14.3.min.mjs",
-                cannon: root + "/include/cannon-es.0.20.0.mjs"
+                global: root + "src/global.mjs",
+                pixi: root + "include/pixi.8.14.3.min.mjs",
+                cannon: root + "include/cannon-es.0.20.0.mjs"
             }
         };
         const script = document.createElement("script"); script.type = "importmap";

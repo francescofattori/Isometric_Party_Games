@@ -7,7 +7,7 @@ export class Scene {
         this.info = { alias: alias, root: root };
     }
     async getAssetsNames() {
-        let info = await assets.load("assets/scenes/" + this.info.alias + ".json", "json", this.info.root);
+        let info = await assets.load("scenes/" + this.info.alias + ".json", "json", this.info.root);
         let assetsNames = [await new SceneMap(info.map.alias, info.map.root).getAssetsNames()];
         for (const entity of info.entities) {
             assetsNames.push(await new Entity(entity.pos, entity.src, entity.root).getAssetsNames());

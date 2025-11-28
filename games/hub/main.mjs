@@ -7,6 +7,7 @@ async function main() {
     await scene.load("hub", true);
     let player = new Player(new vec3(0, 0, 5)); await player.init();
     camera.target = player.pos;
+    player.controller = new Controller("keyboardAndMouse");
     scene.add(player);
     scene.play();
 }
