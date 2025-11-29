@@ -1,2 +1,2 @@
 # Isometric Party Games
-ciaociao
+Go to [Networking](networking.md)
