@@ -37,7 +37,7 @@ export class Entity {
         }
         shape.material = world.materials[collider.material];
         this.rigidbody.addShape(shape); this.size = collider.size;
-        this.rigidbody.tag = "ground"; this.rigidbody.mass = collider.mass;
+        this.rigidbody.jumpable = true;
         this.rigidbody.position.set(this.info.pos.x, this.info.pos.y, this.info.pos.z);
         world.addBody(this.rigidbody);
     }
@@ -46,7 +46,7 @@ export class Entity {
         this.initGraphics();
         this.initPhysics();
     }
-    drawShadow(pos){
+    drawShadow(pos) {
         let ray = new CANNON.Ray(
             new CANNON.Vec3(pos.x, pos.y, pos.z + 0.1),
             new CANNON.Vec3(pos.x, pos.y, pos.z - 10)

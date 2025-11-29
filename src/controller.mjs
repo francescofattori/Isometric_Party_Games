@@ -8,11 +8,13 @@ export class Controller {
     input = "keyboard"; //or keyboardAndMouse or gamepad
     leftStick = new vec2(); leftAngle = -Math.PI / 2;
     rightStick = new vec2(); rightAngle = -Math.PI / 2;
+    player = undefined;
     jump = false;
     afk = false; afkTime = undefined;
     prevTime = 0;
-    constructor(input = "keyboard") {
-        this.input = input;
+    showUI = true;
+    constructor(player, input = "keyboard", index = 0) {
+        this.input = input; this.player = player;
         switch (this.input) {
             case "keyboard":
                 this.initKeyBoard();
@@ -20,6 +22,9 @@ export class Controller {
             case "keyboardAndMouse":
                 this.initKeyBoard();
                 this.initMouse();
+                break;
+            case "gamepad":
+                this.initGamepad(index);
                 break;
         }
     }
@@ -42,9 +47,12 @@ export class Controller {
         documentEventListeners.mouseDown.push({ listener: this.mouseDown, useCapture: false });
         documentEventListeners.mouseUp.push({ listener: this.mouseUp, useCapture: false });
         documentEventListeners.mouseMove.push({ listener: this.mouseMove, useCapture: false });
-        this.mouseX = 0; this.mouseY = 0;
-        this.mouseTargetLine = new vec3(); this.target = new vec3();
+        this.mouseX = 0; this.mouseY = 0; this.mouseTargetLine = new vec3(); this.mouseTarget = new vec3();
         this.marker = new Sprite(assets.ui.marker);
+    }
+    initGamepad(index) {
+        let length = navigator.getGamepads().length;
+        if (index < length) this.gamepadIndex = index;
     }
     keyDown = this.keyDown.bind(this);
     keyDown(e) {
@@ -110,6 +118,9 @@ export class Controller {
                 this.genKeyboardInputs();
                 this.genMouseInputs();
                 break;
+            case "gamepad":
+                this.genGamepadInputs();
+                break;
         }
     }
     genKeyboardInputs() {
@@ -143,10 +154,9 @@ export class Controller {
     genMouseInputs() {
         let dX = 0.25 * (this.mouseX - Math.floor(pixi.screen.width * 0.5)) / pixPerUnit / window.devicePixelRatio;
         let dY = 0.5 * (this.mouseY - Math.floor(pixi.screen.height * 0.5)) / pixPerUnit / window.devicePixelRatio;
-        this.mouseTargetLine.x = dX - dY - camera.pos.x;
-        this.mouseTargetLine.y = -dX - dY - camera.pos.y;
+        this.mouseTargetLine.x = dX - dY + camera.pos.x;
+        this.mouseTargetLine.y = -dX - dY + camera.pos.y;
         this.marker.visible = false;
-        if (scene.map.heightAt(this.mouseTargetLine) <= 0 || scene.map.heightAt(this.mouseTargetLine) >= scene.map.size.z) return;
         let t = scene.map.size.z - scene.map.center.z - 1 + scene.map.maxHeight;
         let b = scene.map.center.z + 3;
         let top = new vec3(this.mouseTargetLine.x - t, this.mouseTargetLine.y - t, t);
@@ -157,15 +167,42 @@ export class Controller {
         );
         ray.mode = CANNON.RAY_MODES.CLOSEST;
         let result = new CANNON.RaycastResult();
-        ray.intersectBodies(world.bodies, result);
+        let index = world.bodies.indexOf(this.player.rigidbody);
+        let bodies = world.bodies.slice();
+        if (index > -1) {
+            bodies.splice(index, 1);
+        }
+        ray.intersectBodies(bodies, result);
+        this.mouseTarget = undefined;
         if (result.hasHit) {
             this.mouseTarget = new vec3(result.hitPointWorld.x, result.hitPointWorld.y, result.hitPointWorld.z);
-            this.marker.visible = true;
+            if (result.body.tag == "map" && (scene.map.heightAt(this.mouseTargetLine) <= 0 || scene.map.heightAt(this.mouseTargetLine) >= scene.map.size.z))
+                this.mouseTarget = new vec3(this.mouseTargetLine.x - this.player.pos.z, this.mouseTargetLine.y - this.player.pos.z, this.player.pos.z);
+        } else {
+            this.mouseTarget = new vec3(this.mouseTargetLine.x - this.player.pos.z, this.mouseTargetLine.y - this.player.pos.z, this.player.pos.z);
         }
-        else this.mouseTarget = undefined;
+        if (!this.mouseTarget) return;
+        if (this.rightClick) {
+            this.marker.visible = true;
+            this.rightStick = new vec2(new vec3(this.mouseTarget).minus(this.player.pos).rotated(Math.PI / 4).normalized());
+            this.rightAngle = Math.atan2(this.rightStick.y, this.rightStick.x);
+        }
+    }
+    genGamepadInputs() {
+        let gamepad = navigator.getGamepads()[this.gamepadIndex];
+        this.jump = gamepad.buttons[0].pressed;
+        this.leftStick = new vec2(gamepad.axes[0], -gamepad.axes[1]);
+        this.rightStick = new vec2(gamepad.axes[2], -gamepad.axes[3]);
+        if (this.leftStick.length() > 0.9) this.run = true; else this.run = false;
+        if (this.leftStick.length() < 0.1) this.leftStick = new vec2(0, 0);
+        else { this.leftStick.normalize(); this.leftAngle = Math.atan2(this.leftStick.y, this.leftStick.x); }
+        if (this.rightStick.length() < 0.1) { this.rightStick = new vec2(this.leftStick); }
+        else { this.rightStick.normalize(); }
+        if (this.rightStick.length() > 0.0) this.rightAngle = Math.atan2(this.rightStick.y, this.rightStick.x);
     }
     draw() {
         if (!this.mouseTarget) return;
+        if (!this.showUI) return;
         this.marker.draw(this.mouseTarget);
         let t = world.time; let h = 2;
         let c = Math.cos(t); let s = Math.sin(t); c *= c; s *= s;

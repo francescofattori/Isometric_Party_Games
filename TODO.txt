@@ -1,4 +1,4 @@
--add mouse support with pointer as right stick
--add gamepad support
+-add phone touch controls
+-design multiple players system
 -manage offline and online games (build abstractly to use either socket.io or geckos.io)
 -test shooter weapon grip

@@ -61,7 +61,8 @@ export class SceneMap {
                 this.collider.addShape(shape, pos);
             }
         }
-        this.collider.tag = "ground";
+        this.collider.jumpable = true;
+        this.collider.tag = "map";
         world.addBody(this.collider);
     }
     draw() {

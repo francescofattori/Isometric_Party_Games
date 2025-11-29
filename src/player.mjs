@@ -22,7 +22,7 @@ export class Player extends Entity {
     }
     async init() {
         await super.init();
-        this.controller = new Controller();
+        this.controller = new Controller(this);
     }
     initGraphics() {
         let texture = this.assets.spriteTexture;
@@ -54,7 +54,7 @@ export class Player extends Entity {
     }
     collide = this.collide.bind(this);
     collide(e) {
-        if (e.body.tag == "ground" && e.contact.si.tag == "feet" && this.sprite.anim != "jump") {
+        if (e.body.jumpable && e.contact.si.tag == "feet" && this.sprite.anim != "jump") {
             this.grounded = true;
             if (this.sprite.anim == "fall") this.sprite.anim = "land";
         }
@@ -93,7 +93,7 @@ export class Player extends Entity {
             if (this.rigidbody.velocity.z < 0) this.sprite.anim = "fall";
             else if (this.sprite.anim != "jump") this.sprite.anim = "ascend";
         }
-        if (world.time - this.controller.afkTime > 10) this.sprite.anim = "sit";
+        if (world.time - this.controller.afkTime > 10000) this.sprite.anim = "sit";
     }
     calcHandsPos() {
         let anim = this.sprite.anim;
