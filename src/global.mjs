@@ -48,6 +48,30 @@ export async function initCannon(materialsSrc, root = false) {
     world.defaultContactMaterial.contactEquationRelaxation = 10;
     world.defaultContactMaterial.contactEquationStiffness = 5e8;
 }
+export const isMobile = {//checks if client is on mobile
+    Android: function () {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function () {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function () {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Macintosh: function () {
+        if (navigator.userAgent.match(/Macintosh/i) && navigator.maxTouchPoints > 1)
+            return true;
+    },
+    Opera: function () {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function () {
+        return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+    },
+    any: function () {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Macintosh() || isMobile.Opera() || isMobile.Windows());
+    }
+};
 
 export { Player } from "./player.mjs"
 export { vec2, vec3 } from "./vector.mjs";
