@@ -1,0 +1,29 @@
+.stickDiv {
+    position: absolute;
+    width: 25vmin;
+    height: 25vmin;
+    border-radius: 50%;
+    opacity: 0.5;
+    background-color: grey;
+}
+
+.stick {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 15vmin;
+    height: 15vmin;
+    border-radius: 50%;
+    opacity: 1;
+    background-color: white;
+    transform: translate(-50%,-50%);
+}
+
+.touchButton {
+    position: absolute;
+    width: 15vmin;
+    height: 15vmin;
+    border-radius: 50%;
+    opacity: 0.5;
+    background-color: grey;
+}

@@ -1,4 +1,5 @@
 -add phone touch controls
 -design multiple players system
 -manage offline and online games (build abstractly to use either socket.io or geckos.io)
+-adjust animation speed
 -test shooter weapon grip

@@ -4,8 +4,9 @@ import { pixPerUnit } from "./camera.mjs";
 import { pixi, camera, assets, world, scene } from "./global.mjs";
 import * as CANNON from "cannon";
 import { Sprite } from "./sprite.mjs";
+import { createTouchControls, removeTouchControls } from "./touchControls.mjs";
 export class Controller {
-    input = "keyboard"; //or keyboardAndMouse or gamepad
+    input = "keyboard"; //or keyboardAndMouse or gamepad or touchControls
     leftStick = new vec2(); leftAngle = -Math.PI / 2;
     rightStick = new vec2(); rightAngle = -Math.PI / 2;
     player = undefined;
@@ -25,6 +26,9 @@ export class Controller {
                 break;
             case "gamepad":
                 this.initGamepad(index);
+                break;
+            case "touchControls":
+                this.initTouchControls();
                 break;
         }
     }
@@ -53,6 +57,9 @@ export class Controller {
     initGamepad(index) {
         let length = navigator.getGamepads().length;
         if (index < length) this.gamepadIndex = index;
+    }
+    initTouchControls() {
+        createTouchControls();
     }
     keyDown = this.keyDown.bind(this);
     keyDown(e) {
