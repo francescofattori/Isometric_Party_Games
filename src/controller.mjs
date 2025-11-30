@@ -166,8 +166,8 @@ export class Controller {
         this.prevTime = world.time;
     }
     genMouseInputs() {
-        let dX = 0.25 * (this.mouseX - Math.floor(pixi.screen.width * 0.5)) / pixPerUnit * window.devicePixelRatio;
-        let dY = 0.5 * (this.mouseY - Math.floor(pixi.screen.height * 0.5)) / pixPerUnit * window.devicePixelRatio;
+        let dX = 0.25 * (this.mouseX - Math.floor(pixi.screen.width * 0.5)) / pixPerUnit;
+        let dY = 0.5 * (this.mouseY - Math.floor(pixi.screen.height * 0.5)) / pixPerUnit;
         this.mouseTargetLine.x = dX - dY + camera.pos.x;
         this.mouseTargetLine.y = -dX - dY + camera.pos.y;
         this.marker.visible = false;
