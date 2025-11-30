@@ -9,7 +9,7 @@ export class Camera {
     hardZone = new vec3(2, 2, 4);
     set zoom(v) { this._zoom = v / devicePixelRatio; }
     get zoom() { return this._zoom; }
-    _zoom = 4 / window.devicePixelRatio;
+    _zoom = Math.round(4 * (1+window.devicePixelRatio)*0.5) / window.devicePixelRatio;
     zIndex(p) {
         let z = 1.0 + 2.0 * ((2 * p.z - p.x - p.y) - scene.map.maxZIndex) * scene.map.multZIndex;
         if (scene.map.heightAt(p) < 0) z -= 2;

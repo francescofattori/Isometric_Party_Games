@@ -1,5 +1,8 @@
--add phone touch controls
+-change camera softzone and hardzone based on screen position (for vertical screen)
 -design multiple players system
 -manage offline and online games (build abstractly to use either socket.io or geckos.io)
 -adjust animation speed
 -test shooter weapon grip
+
+-GAME IDEAS
+-tennis in verticale ma con i polli (oppure normale)

@@ -1,10 +1,10 @@
 const documentEventListeners = { keydown: [], keyup: [], mouseDown: [], mouseUp: [], mouseMove: [] }; //for handling key events
-import { clamp } from "./vector.mjs";
-import { pixPerUnit } from "./camera.mjs";
-import { pixi, camera, assets, world, scene } from "./global.mjs";
 import * as CANNON from "cannon";
+import { pixPerUnit } from "./camera.mjs";
+import { assets, camera, pixi, scene, world } from "./global.mjs";
 import { Sprite } from "./sprite.mjs";
-import { createTouchControls, removeTouchControls } from "./touchControls.mjs";
+import { createTouchControls } from "./touchControls.mjs";
+import { clamp } from "./vector.mjs";
 export class Controller {
     input = "keyboard"; //or keyboardAndMouse or gamepad or touchControls
     leftStick = new vec2(); leftAngle = -Math.PI / 2;
@@ -59,7 +59,11 @@ export class Controller {
         if (index < length) this.gamepadIndex = index;
     }
     initTouchControls() {
-        createTouchControls();
+        let obj = createTouchControls();
+        this.div = obj.div;
+        this.HTMLleftStick = obj.leftStick;
+        this.HTMLrightStick = obj.rightStick;
+        this.HTMLjumpButton = obj.jumpButton;
     }
     keyDown = this.keyDown.bind(this);
     keyDown(e) {
@@ -128,6 +132,9 @@ export class Controller {
             case "gamepad":
                 this.genGamepadInputs();
                 break;
+            case "touchControls":
+                this.genTouchControlsInputs();
+                break;
         }
     }
     genKeyboardInputs() {
@@ -159,8 +166,8 @@ export class Controller {
         this.prevTime = world.time;
     }
     genMouseInputs() {
-        let dX = 0.25 * (this.mouseX - Math.floor(pixi.screen.width * 0.5)) / pixPerUnit / window.devicePixelRatio;
-        let dY = 0.5 * (this.mouseY - Math.floor(pixi.screen.height * 0.5)) / pixPerUnit / window.devicePixelRatio;
+        let dX = 0.25 * (this.mouseX - Math.floor(pixi.screen.width * 0.5)) / pixPerUnit * window.devicePixelRatio;
+        let dY = 0.5 * (this.mouseY - Math.floor(pixi.screen.height * 0.5)) / pixPerUnit * window.devicePixelRatio;
         this.mouseTargetLine.x = dX - dY + camera.pos.x;
         this.mouseTargetLine.y = -dX - dY + camera.pos.y;
         this.marker.visible = false;
@@ -206,6 +213,16 @@ export class Controller {
         if (this.rightStick.length() < 0.1) { this.rightStick = new vec2(this.leftStick); }
         else { this.rightStick.normalize(); }
         if (this.rightStick.length() > 0.0) this.rightAngle = Math.atan2(this.rightStick.y, this.rightStick.x);
+    }
+    genTouchControlsInputs(){
+        this.leftStick = new vec2(this.HTMLleftStick.x, -this.HTMLleftStick.y);
+        this.rightStick = new vec2(this.HTMLrightStick.x, -this.HTMLrightStick.y);
+        if (this.leftStick.length() > 0.9) this.run = true; else this.run = false;
+        if (this.leftStick.length() < 0.1) this.leftStick = new vec2(0, 0);
+        else { this.leftAngle = Math.atan2(this.leftStick.y, this.leftStick.x); }
+        if (this.rightStick.length() < 0.1) { this.rightStick = new vec2(this.leftStick); }
+        if (this.rightStick.length() > 0.0) this.rightAngle = Math.atan2(this.rightStick.y, this.rightStick.x);
+        this.jump = this.HTMLjumpButton.pressed;
     }
     draw() {
         if (!this.mouseTarget) return;
