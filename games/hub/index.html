@@ -25,18 +25,11 @@
         }
     </style>
     <script>
-        let root = ("parse" in URL) ? URL.parse("../../", location.href).href : location.href + "../../";
-        const importmap = {
-            imports: {
-                global: root + "src/global.mjs",
-                pixi: root + "include/pixi.8.14.3.min.mjs",
-                cannon: root + "include/cannon-es.0.20.0.mjs"
-            }
-        };
+        const importmap = { imports: { main: "./main.mjs" } };
         const script = document.createElement("script"); script.type = "importmap";
         script.innerHTML = JSON.stringify(importmap); document.head.appendChild(script);
     </script>
-    <script defer type="module" src="main.mjs"></script>
+    <script defer type="module" src="../../src/client.mjs"></script>
 </head>
 
 <body oncontextmenu="return false;" style="opacity: 0;">

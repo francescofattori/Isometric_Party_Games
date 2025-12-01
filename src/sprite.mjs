@@ -1,4 +1,4 @@
-import * as PIXI from "pixi";
+import * as PIXI from "../include/pixi.mjs";
 import { pixi, camera, world } from "./global.mjs";
 import { vec2, clamp } from "./vector.mjs";
 export class Sprite {

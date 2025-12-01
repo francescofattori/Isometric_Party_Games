@@ -1,4 +1,4 @@
-import * as CANNON from "cannon";
+import * as CANNON from "../include/cannon.mjs";
 import { world, assets } from "./global.mjs";
 import { Sprite } from "./sprite.mjs";
 export class Entity {

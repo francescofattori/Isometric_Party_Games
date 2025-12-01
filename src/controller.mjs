@@ -1,5 +1,5 @@
 const documentEventListeners = { keydown: [], keyup: [], mouseDown: [], mouseUp: [], mouseMove: [] }; //for handling key events
-import * as CANNON from "cannon";
+import * as CANNON from "../include/cannon.mjs";
 import { pixPerUnit } from "./camera.mjs";
 import { assets, camera, pixi, scene, world } from "./global.mjs";
 import { Sprite } from "./sprite.mjs";

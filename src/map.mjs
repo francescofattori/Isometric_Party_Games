@@ -1,5 +1,5 @@
-import * as CANNON from "cannon";
-import * as PIXI from "pixi";
+import * as CANNON from "../include/cannon.mjs";
+import * as PIXI from "../include/pixi.mjs";
 import { pixi, world, camera, assets } from "./global.mjs";
 import { vec2, vec3 } from "./vector.mjs";
 export class SceneMap {

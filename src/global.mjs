@@ -1,5 +1,5 @@
-import * as PIXI from "pixi";
-import * as CANNON from "cannon";
+import * as PIXI from "../include/pixi.mjs";
+import * as CANNON from "../include/cannon.mjs";
 import { Scene } from "./scene.mjs";
 import { Camera } from "./camera.mjs";
 import { AssetsManager } from "./assets.mjs";

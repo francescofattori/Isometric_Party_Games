@@ -1,4 +1,4 @@
-import * as PIXI from "pixi";
+import * as PIXI from "../include/pixi.mjs";
 import { __root } from "./global.mjs";
 export class AssetsManager {
     cache = new Map();
