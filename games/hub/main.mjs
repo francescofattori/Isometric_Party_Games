@@ -1,4 +1,4 @@
-import * as global from "global";
+import * as global from "../../src/global.mjs";
 global.makeObjectGlobal(global);
 
 export async function main() {
