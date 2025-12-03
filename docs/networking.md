@@ -17,3 +17,12 @@ for each games functions should be defined for the server and for the client sep
 each room in the server will have it's own scene and world that run the update function of the specific game
 in theory the main file should contain in the start function object definition for custom classes and in update update all the created objects, the rest of the game is driven by the engine
 (this is meant to be a pretty small and straight forward engine that does just the right amount of stuff but good so that it's easy to make a pretty game in a short time)
+
+-client side
+	socket;
+	connectToServer(url, port); //starts socket.io interval trying to connect that sets (check socket.connected so see if connected to server)
+	
+
+
+
+-server side
