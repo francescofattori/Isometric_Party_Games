@@ -1,7 +1,8 @@
 const documentEventListeners = { keydown: [], keyup: [], mouseDown: [], mouseUp: [], mouseMove: [] }; //for handling key events
 import * as CANNON from "../../include/cannon.mjs";
 import { pixPerUnit } from "./camera.mjs";
-import { assets, camera, pixi, scene, world } from "./client.mjs";
+import { pixi } from "./renderer.mjs";
+import { assets, camera, scene, world } from "./client.mjs";
 import { Sprite } from "./sprite.mjs";
 import { createTouchControls } from "./touchControls.mjs";
 import { vec2, vec3, clamp } from "../common/vector.mjs";
@@ -52,7 +53,7 @@ export class Controller {
         documentEventListeners.mouseUp.push({ listener: this.mouseUp, useCapture: false });
         documentEventListeners.mouseMove.push({ listener: this.mouseMove, useCapture: false });
         this.mouseX = 0; this.mouseY = 0; this.mouseTargetLine = new vec3(); this.mouseTarget = new vec3();
-        this.marker = new Sprite(assets.ui.marker);
+        this.marker = new Sprite(assets.ui.marker); this.marker.visible = false;
     }
     initGamepad(index) {
         let length = navigator.getGamepads().length;
@@ -214,7 +215,7 @@ export class Controller {
         else { this.rightStick.normalize(); }
         if (this.rightStick.length() > 0.0) this.rightAngle = Math.atan2(this.rightStick.y, this.rightStick.x);
     }
-    genTouchControlsInputs(){
+    genTouchControlsInputs() {
         this.leftStick = new vec2(this.HTMLleftStick.x, -this.HTMLleftStick.y);
         this.rightStick = new vec2(this.HTMLrightStick.x, -this.HTMLrightStick.y);
         if (this.leftStick.length() > 0.9) this.run = true; else this.run = false;

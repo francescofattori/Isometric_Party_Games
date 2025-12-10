@@ -13,6 +13,9 @@ export class Socket {
                 }
         }
     }
+    emit(event, data) {
+        io.emit(event, data);
+    };
     get connected() {
         return this.socket.connected;
     }

@@ -1,0 +1,7 @@
+{
+    "port": 5501,
+    "public": false,
+    "hostWebsite": true,
+    "protocol": "http",
+    "sslOptions": {"key": "cert/key.pem", "cert": "cert/cert.pem"}
+}

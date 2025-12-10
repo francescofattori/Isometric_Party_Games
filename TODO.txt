@@ -1,7 +1,13 @@
--change camera softzone and hardzone based on screen position (for vertical screen)
--design multiple players system
 -manage offline and online games (build abstractly to use either socket.io or geckos.io)
+    -add assets system on server
+
+-design multiple players system
+-find a way to unify World class between client and server
+-rework material.json reading for client and server
+
 -adjust animation speed
+-make advancedSprite class for multiple transformations
+-change camera softzone and hardzone based on screen position (for vertical screen)
 -test shooter weapon grip
 
 -GAME IDEAS

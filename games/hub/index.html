@@ -18,12 +18,21 @@
             transition: none;
         }
 
+        #viewport {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         canvas {
             position: absolute;
             left: 0;
             top: 0;
         }
     </style>
+    <link rel="manifest" href="../../manifest.json" />
     <script>
         const importmap = { imports: { main: "./main.mjs" } };
         const script = document.createElement("script"); script.type = "importmap";
@@ -32,7 +41,8 @@
     <script defer type="module" src="../../src/client/client.mjs"></script>
 </head>
 
-<body oncontextmenu="return false;" style="opacity: 0;">
+<body oncontextmenu="return false;">
+    <div id="viewport" style="opacity: 0;"></div>
     <p id="stats" style="color:white; position: relative; z-index: 1;"></p>
 </body>
 

@@ -1,6 +1,6 @@
 //CLIENT
-import * as CANNON from "../../include/cannon.mjs";
-import * as PIXI from "../../include/pixi.mjs";
+import { World } from "./world.mjs";
+import { Renderer } from "./renderer.mjs";
 import { Scene } from "./scene.mjs";
 import { Camera } from "./camera.mjs";
 import { AssetsManager } from "./assets.mjs";
@@ -8,17 +8,20 @@ import { Socket } from "./networking.mjs";
 import { Controller } from "./controller.mjs";
 import { Player } from "./player.mjs";
 import { vec3 } from "../common/vector.mjs";
-import { start, update } from "main";
+import { startLoop, endLoop } from "../common/loop.mjs";
+import { start, update, gameName } from "main";
 //global variables
-export const pixi = new PIXI.Application();
-export const world = new CANNON.World();
+export const world = new World();
 export const scene = new Scene();
 export const camera = new Camera();
 export const assets = new AssetsManager();
 export const socket = new Socket();
+export const renderer = new Renderer();
+export const localPlayers = [];
+export const remotePlayers = [];
 export const game = { scene: scene, world: world };
+export { gameName } from "main";
 //HTML
-export const htmlStats = document.getElementById("stats");
 export const isMobile = {//checks if client is on mobile
     Android: function () {
         return navigator.userAgent.match(/Android/i);
@@ -43,51 +46,35 @@ export const isMobile = {//checks if client is on mobile
         return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Macintosh() || isMobile.Opera() || isMobile.Windows());
     }
 };
-//Init
-async function initPixi() {
-    await pixi.init({
-        background: "#1099bb", resizeTo: window,
-        autoDensity: true, resolution: window.devicePixelRatio,
-        //roundPixels: true
-    });
-    await assets.loadUI();
-    document.body.appendChild(pixi.canvas);
-}
-async function initCannon(materialsSrc, root = false) {
-    world.gravity = new CANNON.Vec3(0, 0, -40);
-    world.updateTime = 0; world.lastUpdate = 0; world.statTime = 0;
-    world.updateTimeSum = 0; world.FPSSum = 0; world.statCount = 0;
-    world.run = true; world.dt = 1.0 / 200.0;
-    world.materials = {};
-    if (materialsSrc != undefined) {
-        let data = await assets.load(materialsSrc, "json", root);
-        for (const name of data.names) { world.materials[name] = new CANNON.Material(name); }
-        for (let i = 0; i < data.table.length; i++) {
-            const row = data.table[i];
-            for (let j = 0; j < row.length; j++) {
-                const contact = row[j];
-                let mat1 = world.materials[data.names[i]]; let mat2 = world.materials[data.names[i + j]];
-                let contactMaterial = new CANNON.ContactMaterial(mat1, mat2, {
-                    friction: contact.f, restitution: contact.r
-                });
-                world.addContactMaterial(contactMaterial);
-            }
-        }
-    }
-    world.defaultContactMaterial.contactEquationRelaxation = 10;
-    world.defaultContactMaterial.contactEquationStiffness = 5e8;
-}
-//Entry point of client
-await initPixi();
-await initCannon("materials.json", true);
+//MAIN
+await renderer.init();
+await world.init();
 await start(game);
-let player = new Player(new vec3(0, 0, 5)); await player.init();
+let player = new Player(new vec3(0, 0, 5)); await player.init(); localPlayers.push(player);
 camera.target = player.pos;
 player.controller = new Controller(player, "keyboardAndMouse");
 if (isMobile.any()) player.controller = new Controller(player, "touchControls");
 window.addEventListener("gamepadconnected", (e) => {
     player.controller = new Controller(player, "gamepad", e.gamepad.index);
 });
-scene.add(player);
 
-socket.connect("socket.io", { url: "http://localhost", port: "5501" });
+renderer.start();
+
+socket.connect("socket.io", {
+    url: "http://localhost", port: "5501", on: {
+        "connect": () => {
+            Socket.standardOn("socket.io", { url: "http://localhost", port: "5501" })["connect"]();
+            socket.emit("joinRequest", { game: gameName, room: "0" });
+        },
+        "msg": (data) => { console.log(data); }
+    }
+});
+
+startLoop(
+    (loop) => {
+        camera.update();
+        scene.update();
+        for (const player of localPlayers) player.update();
+        for (const player of remotePlayers) player.update();
+    },
+    world.updateRate);

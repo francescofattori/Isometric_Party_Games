@@ -1,5 +1,6 @@
 //CLIENT
-import { pixi, scene, world } from "./client.mjs";
+import { pixi } from "./renderer.mjs";
+import { scene, world } from "./client.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
 export const pixPerUnit = 32;
 export class Camera {

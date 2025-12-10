@@ -1,4 +1,5 @@
 import { assets } from "./client.mjs";
+import { vec2 } from "../common/vector.mjs";
 function handleTouchMove(e, stickDiv) {
     e.preventDefault();
     const touch = e.targetTouches[0]; const stick = stickDiv.children[0];
@@ -37,7 +38,7 @@ export function createTouchControls() {
         css.id = "touchControlsStyle";
         css.rel = "stylesheet";
         css.type = "text/css";
-        css.href = assets.root + "src/touchControls.css";
+        css.href = assets.root + "src/client/touchControls.css";
     }
     document.head.appendChild(css);
     let div = document.createElement("div");

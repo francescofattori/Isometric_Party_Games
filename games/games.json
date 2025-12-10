@@ -1,3 +1,13 @@
 [
-    "hub"
+    {
+        "gameName": "hub",
+        "materials": {
+            "src": "materials.json",
+            "root": true
+        },
+        "ui": {
+            "src": "ui.json",
+            "root": true
+        }
+    }
 ]

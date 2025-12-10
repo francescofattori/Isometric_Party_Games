@@ -38,7 +38,7 @@ export class AssetsManager {
         }
         return texture;
     }
-    async load(src, type, root = false) {
+    load(src, type, root = false) {
         src = "assets/" + src;
         if (this.cache.has(src)) return this.cache.get(src);
         if (root) src = this.root + src;

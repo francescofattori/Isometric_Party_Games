@@ -2,7 +2,6 @@
 import * as CANNON from "../../include/cannon.mjs";
 import { world, camera } from "./client.mjs";
 import { Entity } from "./entity.mjs";
-import { Controller } from "./controller.mjs"
 import { vec2, vec3 } from "../common/vector.mjs";
 import { Sprite } from "./sprite.mjs";
 export class Player extends Entity {
@@ -20,10 +19,6 @@ export class Player extends Entity {
             { attribute: "handTexture", src: "sprites/hand.png", type: "texture", root: true }
         ];
         return this.assetsNames;
-    }
-    async init() {
-        await super.init();
-        this.controller = new Controller(this);
     }
     initGraphics() {
         let texture = this.assets.spriteTexture;

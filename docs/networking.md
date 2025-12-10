@@ -18,11 +18,18 @@ each room in the server will have it's own scene and world that run the update f
 in theory the main file should contain in the start function object definition for custom classes and in update update all the created objects, the rest of the game is driven by the engine
 (this is meant to be a pretty small and straight forward engine that does just the right amount of stuff but good so that it's easy to make a pretty game in a short time)
 
+
+events:
+	addPlayer <->
+	removePlayer <->
+	joinRequest ->
+	scene <-
+	update <->
 -client side
 	socket;
 	connectToServer(url, port); //starts socket.io interval trying to connect that sets (check socket.connected so see if connected to server)
-	
 
 
 
 -server side
+	still needs assets system with cache

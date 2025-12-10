@@ -1,6 +1,7 @@
 import * as CANNON from "../../include/cannon.mjs";
 import * as PIXI from "../../include/pixi.mjs";
-import { pixi, world, camera, assets } from "./client.mjs";
+import { pixi } from "./renderer.mjs";
+import { world, camera, assets } from "./client.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
 export class SceneMap {
     constructor(alias, root) {
