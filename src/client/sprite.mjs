@@ -17,6 +17,7 @@ export class Sprite {
     get rotation() { return -this.pixiSprite.rotation; }
     get skew() { return this.pixiSprite.skew; }
     set skew(v) { this.pixiSprite.skew = v; }
+    get anchor() { return this.pixiSprite.anchor; }
     constructor(texture, anchor = undefined) {
         this.texture = texture;
         if (texture.animations) {
@@ -65,4 +66,5 @@ export class Sprite {
         if (this.back) this.#setAnim("back_" + this.anim);
         else this.#setAnim(this.anim);
     }
+    destroy() { pixi.stage.removeChild(this.pixiSprite); }
 }

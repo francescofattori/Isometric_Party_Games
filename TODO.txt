@@ -1,9 +1,9 @@
--manage offline and online games (build abstractly to use either socket.io or geckos.io)
-    -add assets system on server
+-solve jump and land when playing on server
 
+-manage offline and online games (build abstractly to use either socket.io or geckos.io)
 -design multiple players system
--find a way to unify World class between client and server
--rework material.json reading for client and server
+-check classes to free assets data when initialized and add loaded check as in scene to all classes
+-solve clientPlayer entity collision (they are slower because checked 2 times)
 
 -adjust animation speed
 -make advancedSprite class for multiple transformations

@@ -1,24 +1,13 @@
+import { Entity as CommonEntity } from "../common/entity.mjs";
 import * as CANNON from "../../include/cannon.mjs";
-import { world, assets } from "./client.mjs";
+import { assets, world, scene, localPlayers, remotePlayers } from "./client.mjs";
 import { Sprite } from "./sprite.mjs";
-export class Entity {
-    get pos() { return this.rigidbody.position; }
-    constructor(pos = new vec3(), src = "", root = false) {
-        this.info = { pos: pos, src: src, root: root };
-    }
-    async getAssetsNames() {
-        if (this.assetsNames) return this.assetsNames;
-        let info = await assets.load("entities/" + this.info.src, "json", this.info.root);
-        this.assetsNames = [
-            { attribute: "spriteTexture", src: "sprites/" + info.sprite.src, type: "texture", root: info.sprite.root },
+export class Entity extends CommonEntity {
+    genAssetsNames() {
+        return [
+            { attribute: "spriteTexture", src: "sprites/" + this.info.sprite.src, type: "texture", root: this.info.sprite.root },
             { attribute: "shadowTexture", src: "sprites/shadow.png", type: "sheetTexture", root: true }
         ];
-        info.pos = this.info.pos; this.info = info;
-        return this.assetsNames;
-    }
-    async loadAssets() {
-        await this.getAssetsNames();
-        this.assets = await assets.loadObj(this.assetsNames);
     }
     initGraphics() {
         this.sprite = new Sprite(this.assets.spriteTexture, this.info.anchor);
@@ -26,25 +15,14 @@ export class Entity {
         this.shadow.anim = "big_shadow";
         this.shadow.alpha = 0.35;
     }
-    initPhysics() {
-        let collider = this.info.collider;
-        this.rigidbody = new CANNON.Body({ mass: collider.mass, fixedRotation: true });
-        let shape;
-        switch (collider.type) {
-            case "box":
-                shape = new CANNON.Box(new CANNON.Vec3(collider.size.x / 2, collider.size.y / 2, collider.size.z / 2));
-                break;
-        }
-        shape.material = world.materials[collider.material];
-        this.rigidbody.addShape(shape); this.size = collider.size;
-        this.rigidbody.jumpable = true;
-        this.rigidbody.position.set(this.info.pos.x, this.info.pos.y, this.info.pos.z);
-        world.addBody(this.rigidbody);
-    }
     async init() {
-        await this.loadAssets();
+        await super.init(assets, world);
         this.initGraphics();
-        this.initPhysics();
+    }
+    destroy() {
+        super.destroy(scene, world);
+        this.sprite.destroy();
+        this.shadow.destroy();
     }
     drawShadow(pos) {
         let ray = new CANNON.Ray(
@@ -72,5 +50,15 @@ export class Entity {
         this.sprite.draw(pos);
         this.drawShadow(pos);
     }
-    update() { }
+    static getEntity(id){
+        for (const player of localPlayers) {
+            if (player.id.value == id) return player;
+        }
+        for (const player of remotePlayers) {
+            if (player.id.value == id) return player;
+        }
+        for (const entity of scene.entities) {
+            if (entity.id.value == id) return entity;
+        }
+    }
 }

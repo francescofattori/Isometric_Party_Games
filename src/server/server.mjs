@@ -1,20 +1,21 @@
+//SERVER
 import express from "express";
 import http from "http";
 import https from "https";
 import fs from "fs/promises";
 import { Room } from "./room.mjs";
-import { startLoop, endLoop } from "../../src/common/loop.mjs";
 import { AssetsManager } from "../../src/server/assets.mjs";
 import { Socket, Website } from "../../src/server/networking.mjs";
 export const rooms = [];
 export const assets = new AssetsManager();
 export const socket = new Socket();
 export const website = new Website();
+export const gamesInfo = await assets.load("../games/games.json", "json", true);
 
 var options = { port: 5501, public: false, hostWebsite: false, protocol: "http", sslOptions: {} };
 
 //MAIN
-try {
+try {//read options
     options = JSON.parse(await fs.readFile("options.json", "utf8"));
     if (options.protocol == "https") {
         let keyPath = options.sslOptions.key, certPath = options.sslOptions.cert;
@@ -38,6 +39,7 @@ if (options.hostWebsite) website.host(app);
 socket.host(server, options.port, options.public);
 
 let room = new Room("hub"); await room.start();
+
 /*
 io.on("connection", (client) => {
     console.log("user" + client.id + " connected");

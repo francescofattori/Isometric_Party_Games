@@ -6,7 +6,6 @@ export class AssetsManager {
         this.root = new URL("../../", import.meta.dirname.replaceAll("\\", "/") + "/");
     }
     #loadJSON(src) {
-        console.log(decodeURIComponent(src));
         return new Promise((resolve) => {
             fs.readFile(decodeURIComponent(src), "utf8").then((file) => {
                 resolve(JSON.parse(file));

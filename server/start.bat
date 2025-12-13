@@ -1,1 +1,1 @@
-nodemon src/server.mjs
+nodemon ../src/server/server.mjs

@@ -1,26 +1,26 @@
 //CLIENT
-import { World } from "./world.mjs";
+import { AssetsManager } from "./assets.mjs";
+import { World } from "../common/world.mjs";
 import { Renderer } from "./renderer.mjs";
 import { Scene } from "./scene.mjs";
 import { Camera } from "./camera.mjs";
-import { AssetsManager } from "./assets.mjs";
 import { Socket } from "./networking.mjs";
 import { Controller } from "./controller.mjs";
 import { Player } from "./player.mjs";
 import { vec3 } from "../common/vector.mjs";
 import { startLoop, endLoop } from "../common/loop.mjs";
-import { start, update, gameName } from "main";
+import { Game } from "game";
 //global variables
+export const assets = new AssetsManager();
 export const world = new World();
 export const scene = new Scene();
 export const camera = new Camera();
-export const assets = new AssetsManager();
 export const socket = new Socket();
 export const renderer = new Renderer();
 export const localPlayers = [];
 export const remotePlayers = [];
-export const game = { scene: scene, world: world };
-export { gameName } from "main";
+export const game = new Game();
+export const gameInfo = (await assets.load("../games/games.json", "json", true))[game.name];
 //HTML
 export const isMobile = {//checks if client is on mobile
     Android: function () {
@@ -48,8 +48,8 @@ export const isMobile = {//checks if client is on mobile
 };
 //MAIN
 await renderer.init();
-await world.init();
-await start(game);
+await world.init(gameInfo, assets);
+await game.start(scene, world);
 let player = new Player(new vec3(0, 0, 5)); await player.init(); localPlayers.push(player);
 camera.target = player.pos;
 player.controller = new Controller(player, "keyboardAndMouse");
@@ -59,22 +59,22 @@ window.addEventListener("gamepadconnected", (e) => {
 });
 
 renderer.start();
-
+let url = window.location.protocol + "//" + window.location.hostname;
 socket.connect("socket.io", {
-    url: "http://localhost", port: "5501", on: {
+    url: url, port: "5501", on: {
         "connect": () => {
-            Socket.standardOn("socket.io", { url: "http://localhost", port: "5501" })["connect"]();
-            socket.emit("joinRequest", { game: gameName, room: "0" });
-        },
-        "msg": (data) => { console.log(data); }
+            socket.standardOn("socket.io", { url: url, port: "5501" })["connect"]();
+            socket.emit("joinRequest", { game: game.name, room: 1 });
+        }
     }
 });
 
 startLoop(
     (loop) => {
         camera.update();
-        scene.update();
+        for (const entity of scene.entities) { entity.update(); }
         for (const player of localPlayers) player.update();
-        for (const player of remotePlayers) player.update();
+        //for (const player of remotePlayers) player.update();
+        world.update();
     },
     world.updateRate);

@@ -1,20 +1,16 @@
 import * as PIXI from "../../include/pixi.mjs";
-import { assets, world, scene, localPlayers, remotePlayers, gameName } from "./client.mjs";
+import { world, scene, localPlayers, remotePlayers, game, gameInfo, assets } from "./client.mjs";
 export const pixi = new PIXI.Application();
 export const htmlStats = document.getElementById("stats");
 export const htmlViewPort = document.getElementById("viewport");
 export class Renderer {
     async init() {
-        let gamesInfo = await assets.load("../games/games.json", "json", true);
         await pixi.init({
             background: "#1099bb", resizeTo: window,
             autoDensity: true, resolution: window.devicePixelRatio,
             //roundPixels: true
         });
-        let ui = undefined;
-        for (const gameInfo of gamesInfo) {
-            if (gameName == gameInfo.gameName) ui = gameInfo.ui;
-        }
+        let ui = gameInfo.ui;
         if (ui) await assets.loadUI(ui.src, ui.root);
         htmlViewPort.appendChild(pixi.canvas);
     }

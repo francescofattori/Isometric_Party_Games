@@ -34,7 +34,7 @@
     </style>
     <link rel="manifest" href="../../manifest.json" />
     <script>
-        const importmap = { imports: { main: "./main.mjs" } };
+        const importmap = { imports: { game: "./src/common/game.mjs" } };
         const script = document.createElement("script"); script.type = "importmap";
         script.innerHTML = JSON.stringify(importmap); document.head.appendChild(script);
     </script>

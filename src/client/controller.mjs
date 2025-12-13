@@ -2,7 +2,7 @@ const documentEventListeners = { keydown: [], keyup: [], mouseDown: [], mouseUp:
 import * as CANNON from "../../include/cannon.mjs";
 import { pixPerUnit } from "./camera.mjs";
 import { pixi } from "./renderer.mjs";
-import { assets, camera, scene, world } from "./client.mjs";
+import { camera, scene, world, assets } from "./client.mjs";
 import { Sprite } from "./sprite.mjs";
 import { createTouchControls } from "./touchControls.mjs";
 import { vec2, vec3, clamp } from "../common/vector.mjs";
@@ -15,7 +15,8 @@ export class Controller {
     afk = false; afkTime = undefined;
     prevTime = 0;
     showUI = true;
-    constructor(player, input = "keyboard", index = 0) {
+    constructor(player, input, index = 0) {
+        if (!input) return;
         this.input = input; this.player = player;
         switch (this.input) {
             case "keyboard":
