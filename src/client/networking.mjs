@@ -85,7 +85,8 @@ export class Socket {
                     if (!entity) continue;
                     entity.setPos(new vec3(entityData.pos));
                     let index = localPlayers.indexOf(entity);
-                    if (index <= -1) entity.setVel(new vec3(entityData.vel));
+                    if (index > -1) continue;
+                    entity.setVel(new vec3(entityData.vel));
                     if (entityData.player) {
                         entity.controller.rightAngle = entityData.rightAngle;
                         entity.sprite.anim = entityData.sprite.anim;
@@ -94,7 +95,7 @@ export class Socket {
                     }
                 }
             }
-        };
+        }
     }
     genJoinData() {
         let data = [];

@@ -1,5 +1,3 @@
--solve jump and land when playing on server
-
 -manage offline and online games (build abstractly to use either socket.io or geckos.io)
 -design multiple players system
 -check classes to free assets data when initialized and add loaded check as in scene to all classes

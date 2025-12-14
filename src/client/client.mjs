@@ -1,4 +1,5 @@
 //CLIENT
+import * as PIXI from "../../include/pixi.mjs";
 import { AssetsManager } from "./assets.mjs";
 import { World } from "../common/world.mjs";
 import { Renderer } from "./renderer.mjs";
@@ -57,6 +58,7 @@ if (isMobile.any()) player.controller = new Controller(player, "touchControls");
 window.addEventListener("gamepadconnected", (e) => {
     player.controller = new Controller(player, "gamepad", e.gamepad.index);
 });
+player.sprite.tint = 0xfcc2c2;
 
 renderer.start();
 let url = window.location.protocol + "//" + window.location.hostname;
@@ -74,7 +76,7 @@ startLoop(
         camera.update();
         for (const entity of scene.entities) { entity.update(); }
         for (const player of localPlayers) player.update();
-        //for (const player of remotePlayers) player.update();
         world.update();
+        //for (const player of remotePlayers) player.update();
     },
     world.updateRate);

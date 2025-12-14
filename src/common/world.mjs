@@ -36,8 +36,8 @@ export class World {
                 }
             }
         }
-        this.cannonWorld.defaultContactMaterial.contactEquationRelaxation = 10;
-        this.cannonWorld.defaultContactMaterial.contactEquationStiffness = 5e8;
+        //this.cannonWorld.defaultContactMaterial.contactEquationRelaxation = 10;
+        //this.cannonWorld.defaultContactMaterial.contactEquationStiffness = 5e8;
     }
     addBody(body) {
         this.cannonWorld.addBody(body);

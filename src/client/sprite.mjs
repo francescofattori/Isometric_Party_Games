@@ -11,13 +11,12 @@ export class Sprite {
     animChanged = false; //true if this frame is the first after the animation changed
     get currentFrame() { return this.pixiSprite.currentFrame; }
     get zIndex() { return this.pixiSprite.zIndex; } set zIndex(v) { this.pixiSprite.zIndex = v; }
-    set alpha(v) { this.pixiSprite.alpha = v; }
-    set visible(v) { this.pixiSprite.visible = v; }
-    set rotation(v) { this.pixiSprite.rotation = -v; }
-    get rotation() { return -this.pixiSprite.rotation; }
-    get skew() { return this.pixiSprite.skew; }
-    set skew(v) { this.pixiSprite.skew = v; }
+    get alpha() { return this.pixiSprite.alpha; } set alpha(v) { this.pixiSprite.alpha = v; }
+    get visible() { return this.pixiSprite.visible; } set visible(v) { this.pixiSprite.visible = v; }
+    get rotation() { return -this.pixiSprite.rotation; } set rotation(v) { this.pixiSprite.rotation = -v; }
+    get skew() { return this.pixiSprite.skew; } set skew(v) { this.pixiSprite.skew = v; }
     get anchor() { return this.pixiSprite.anchor; }
+    get tint() { return this.pixiSprite.tint; } set tint(v) { this.pixiSprite.tint = v; }
     constructor(texture, anchor = undefined) {
         this.texture = texture;
         if (texture.animations) {
