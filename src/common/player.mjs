@@ -8,6 +8,8 @@ export function Player(EntityClass) {
         leftHand = { pos: new vec3() };
         controller = { rightAngle: -Math.PI / 2 };
         sprite = { anim: "idle", flip: { x: 1, y: 1 }, back: false };
+        inputVel = { x: 0, y: 0, z: 0 };
+        get pos() { return this.rigidbody.position; }
         async getInfo() {
             this.infoLoaded = true;
         }

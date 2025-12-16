@@ -18,9 +18,11 @@ export class Player extends CommonPlayer(Entity) {
         }
         return data;
     }
+    update() {
+        this.rigidbody.velocity.x = this.inputVel.x;
+        this.rigidbody.velocity.y = this.inputVel.y;
+    }
     async init(world) {
         await super.init(world);
-        /*this.rigidbody.mass = 350;//fixes double collision check (at least for now)
-        this.rigidbody.updateMassProperties();*/
     }
 }

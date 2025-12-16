@@ -108,7 +108,7 @@ export class Socket {
         let data = [];
         for (const player of localPlayers) {
             data.push({
-                id: player.id.value, vel: player.vel,
+                id: player.id.value, inputVel: player.inputVel,
                 rightAngle: player.controller.rightAngle,
                 sprite: { anim: player.sprite.anim, flip: player.sprite.flip, back: player.sprite.back }
             });

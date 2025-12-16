@@ -1,6 +1,6 @@
 //SERVER
-import express from "./node_modules/express/index.js";
-import { Server as Socket_IO_Server } from "./node_modules/socket.io/dist/index.js";
+import express from "express";
+import { Server as Socket_IO_Server } from "socket.io";
 import { rooms } from "./server.mjs";
 import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
@@ -63,7 +63,8 @@ export class Socket {
                 if (!client.room) return;
                 for (const playerData of data) {
                     const player = Entity.getEntity(client, playerData.id);
-                    player.setVel(playerData.vel);
+                    player.inputVel = playerData.inputVel;
+                    player.rigidbody.velocity.z = playerData.inputVel.z;
                     player.controller.rightAngle = playerData.rightAngle;
                     player.sprite.anim = playerData.sprite.anim;
                     player.sprite.flip = new vec2(playerData.sprite.flip);

@@ -1,6 +1,6 @@
 {
     "port": 5501,
-    "public": false,
+    "public": true,
     "hostWebsite": false,
     "protocol": "http",
     "sslOptions": {"key": "cert/key.pem", "cert": "cert/cert.pem"}

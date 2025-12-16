@@ -55,6 +55,7 @@ export class Player extends CommonPlayer(Entity) {
             this.grounded = false;
             this.rigidbody.velocity.z += this.jumpForce;
         }
+        this.inputVel = new vec3(this.rigidbody.velocity);//expected input velocity not considering collisions
         //Graphics
         if (this.controller.rightStick.x < 0.0 ||
             (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x < 0.0)) this.sprite.flip.x = -1;

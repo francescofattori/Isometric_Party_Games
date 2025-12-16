@@ -24,6 +24,8 @@ export class Room {
         await this.game.start(this.globals.scene, this.globals.world);
         this.updateLoop = startLoop(() => {
             for (const entity of this.globals.scene.entities) { entity.update(); }
+            for (const client of this.clients)
+                for (const player of client.players) { player.update(); }
             this.globals.world.update();
             this.game.update(this.globals.scene, this.globals.world);
         }, this.globals.world.updateRate);
