@@ -1,4 +1,4 @@
-import * as PIXI from "../../include/pixi.mjs";
+import * as PIXI from "../include/pixi.mjs";
 import { world, scene, localPlayers, remotePlayers, game, gameInfo, assets } from "./client.mjs";
 export const pixi = new PIXI.Application();
 export const htmlStats = document.getElementById("stats");

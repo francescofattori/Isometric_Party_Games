@@ -1,5 +1,5 @@
 //CLIENT
-import * as CANNON from "../../include/cannon.mjs";
+import * as CANNON from "../include/cannon.mjs";
 export class World {
     #updateRate = 200; //times a second
     get updateRate() { return this.#updateRate; }

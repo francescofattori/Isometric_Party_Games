@@ -1,5 +1,5 @@
 //CLIENT
-import { Assets as PixiAssets } from "../../include/pixi.mjs";
+import { Assets as PixiAssets } from "../include/pixi.mjs";
 export class AssetsManager {
     cache = new Map();
     root = ("parse" in URL) ? URL.parse("../../", location.href).href : location.href + "../../";

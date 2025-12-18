@@ -1,7 +1,6 @@
 -manage offline and online games (build abstractly to use either socket.io or geckos.io)
 -design multiple players system
 -check classes to free assets data when initialized and add loaded check as in scene to all classes
--solve clientPlayer entity collision (they are slower because checked 2 times)
 
 -adjust animation speed
 -make advancedSprite class for multiple transformations

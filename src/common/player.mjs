@@ -1,5 +1,5 @@
 //COMMON
-import * as CANNON from "../../include/cannon.mjs";
+import * as CANNON from "../include/cannon.mjs";
 import { vec3 } from "../common/vector.mjs";
 export function Player(EntityClass) {
     return class PlayerClass extends EntityClass {
@@ -34,7 +34,8 @@ export function Player(EntityClass) {
                 if (e.body.tag == "map") {
                     //snap velocity and position
                     this.rigidbody.velocity.z = e.body.velocity.z;
-                    this.rigidbody.position = e.body.position.vadd(e.contact.rj).vsub(e.contact.ri);
+                    let newPos = e.body.position.vadd(e.contact.rj).vsub(e.contact.ri);
+                    this.rigidbody.position.set(newPos.x, newPos.y, newPos.z);
                 }
                 this.grounded = true;
                 if (this.sprite.anim == "fall") this.sprite.anim = "land";

@@ -1,4 +1,4 @@
-import * as PIXI from "../../include/pixi.mjs";
+import * as PIXI from "../include/pixi.mjs";
 import { pixi } from "./renderer.mjs";
 import { camera, world } from "./client.mjs";
 import { vec2, clamp } from "../common/vector.mjs";

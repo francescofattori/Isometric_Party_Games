@@ -9,7 +9,7 @@ export class Entity extends CommonEntity {
     genNetworkingData() { return { id: this.id.value, pos: this.pos, vel: this.vel }; }
     update() { }
     static getEntity(client, id) {
-        let room = client.room;
+        let room = client.gameRoom;
         for (const roomClient of room.clients) {
             for (const player of roomClient.players) {
                 if (player.id.value == id) return player;

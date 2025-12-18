@@ -1,5 +1,5 @@
 //CLIENT
-import * as PIXI from "../../include/pixi.mjs";
+import * as PIXI from "../include/pixi.mjs";
 import { AssetsManager } from "./assets.mjs";
 import { World } from "../common/world.mjs";
 import { Renderer } from "./renderer.mjs";
@@ -62,10 +62,10 @@ player.sprite.tint = 0xfcc2c2;
 
 renderer.start();
 let url = window.location.protocol + "//" + window.location.hostname;
-socket.connect("socket.io", {
+socket.connect("geckos.io", {
     url: url, port: "5501", on: {
         "connect": () => {
-            socket.standardOn("socket.io", { url: url, port: "5501" })["connect"]();
+            socket.standardOn("geckos.io", { url: url, port: "5501" })["connect"]();
             socket.emit("joinRequest", { game: game.name, room: 1 });
         }
     }

@@ -1,4 +1,4 @@
-import * as CANNON from "../../include/cannon.mjs";
+import * as CANNON from "../include/cannon.mjs";
 export class SceneMap {
     constructor(alias, root) {
         this.info = { alias: alias, root: root };

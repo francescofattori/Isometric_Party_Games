@@ -1,5 +1,5 @@
 //COMMON
-import * as CANNON from "../../include/cannon.mjs";
+import * as CANNON from "../include/cannon.mjs";
 import { vec3 } from "./vector.mjs";
 export class Entity {
     static IDs = [];

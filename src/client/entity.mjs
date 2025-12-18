@@ -1,5 +1,5 @@
 import { Entity as CommonEntity } from "../common/entity.mjs";
-import * as CANNON from "../../include/cannon.mjs";
+import * as CANNON from "../include/cannon.mjs";
 import { assets, world, scene, localPlayers, remotePlayers } from "./client.mjs";
 import { Sprite } from "./sprite.mjs";
 export class Entity extends CommonEntity {
@@ -38,7 +38,7 @@ export class Entity extends CommonEntity {
             this.shadow.visible = true;
             let shadowPos = { x: pos.x, y: pos.y, z: z };
             this.shadow.draw(shadowPos);
-            if (this.shadow.zIndex > this.sprite.zIndex) //so that shadow is behind sprite
+            if (this.shadow.zIndex >= this.sprite.zIndex) //so that shadow is behind sprite
                 this.shadow.zIndex = this.sprite.zIndex - 0.000001;
         } else {
             this.shadow.visible = false;
@@ -50,7 +50,7 @@ export class Entity extends CommonEntity {
         this.sprite.draw(pos);
         this.drawShadow(pos);
     }
-    static getEntity(id){
+    static getEntity(id) {
         for (const player of localPlayers) {
             if (player.id.value == id) return player;
         }

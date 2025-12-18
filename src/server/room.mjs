@@ -30,7 +30,7 @@ export class Room {
             this.game.update(this.globals.scene, this.globals.world);
         }, this.globals.world.updateRate);
         this.networkingLoop = startLoop(() => {
-            socket.broadcastRoom(this.id, "update", this.genNetworkingData());
+            socket.emitToRoom(this.id, "update", this.genNetworkingData());
         }, networkingRate);
     }
     genNetworkingData() {

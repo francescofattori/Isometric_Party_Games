@@ -1,26 +1,37 @@
-import { io } from "../../include/socket.io.mjs";
+import { io as Socket_IO } from "../server/node_modules/socket.io/client-dist/socket.io.esm.min.js";
+import { geckos as Geckos_IO } from "../include/geckos.io-client.mjs";
 import { startLoop, endLoop } from "../common/loop.mjs";
 import { localPlayers, remotePlayers } from "./client.mjs";
 import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
-export const networkingRate = 100;//times a second
+export const networkingRate = 30;//times a second
 export class Socket {
     connect(library, options) {
         this.library = library;
         this.options = options;
         switch (library) {
             case "socket.io":
-                this.io = io(options.url + ":" + options.port);
-                if (!options.on) options.on = {};
-                Socket.mergeProperties(options.on, this.standardOn(library, options));
-                for (const event in options.on) {
-                    if (event == "disconnect") {
-                        this.io.on(event, () => { options.on[event](); endLoop(this.loop); });
-                    } else {
-                        this.io.on(event, options.on[event]);
-                    }
+                this.io = Socket_IO(options.url + ":" + options.port); break;
+            case "geckos.io":
+                this.io = Geckos_IO({ port: options.port, url: options.url }); break;
+        }
+        if (!options.on) options.on = {};
+        Socket.mergeProperties(options.on, this.standardOn(library, options));
+        for (const event in options.on) {
+            if (event == "disconnect") {
+                switch (library) {
+                    case "socket.io":
+                        this.io.on(event, () => { options.on[event](); endLoop(this.loop); }); break;
+                    case "geckos.io":
+                        this.io.onDisconnect(() => { options.on[event](); endLoop(this.loop); }); break;
                 }
+            } else if (event == "connect" && library == "geckos.io") {
+                this.io.onConnect(options.on[event]);
+            }
+            else {
+                this.io.on(event, options.on[event]);
+            }
         }
     }
     emit(event, data) {

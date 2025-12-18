@@ -12,7 +12,7 @@ export const socket = new Socket();
 export const website = new Website();
 export const gamesInfo = await assets.load("../games/games.json", "json", true);
 
-var options = { port: 5501, public: false, hostWebsite: false, protocol: "http", sslOptions: {} };
+var options = { port: 5501, public: false, hostWebsite: false, protocol: "http", sslOptions: {}, library: "geckos.io" };
 
 //MAIN
 try {//read options
@@ -36,7 +36,7 @@ switch (options.protocol) {
         break;
 }
 if (options.hostWebsite) website.host(app);
-socket.host(server, options.port, options.public);
+socket.host(server, options.library, options.port, options.public);
 
 let room = new Room("hub"); await room.start();
 
