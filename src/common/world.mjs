@@ -47,7 +47,8 @@ export class World {
     }
     update() {
         let t = performance.now() / 1000.0;
-        this.cannonWorld.step(this.dt, t - this.lastUpdate);
+        this.updateTime = t - this.lastUpdate;
+        this.cannonWorld.step(this.dt, this.updateTime);
         this.lastUpdate = t;
     }
 }

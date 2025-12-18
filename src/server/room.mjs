@@ -1,9 +1,9 @@
 //SERVER
-import { rooms, socket, assets, gamesInfo } from "./server.mjs";
-import { Scene } from "./scene.mjs";
-import { World } from "../common/world.mjs";
 import { startLoop } from "../common/loop.mjs";
+import { World } from "../common/world.mjs";
 import { networkingRate } from "./networking.mjs";
+import { Scene } from "./scene.mjs";
+import { assets, gamesInfo, rooms, socket } from "./server.mjs";
 export class Room {
     clients = [];
     static #genId() {
@@ -34,14 +34,14 @@ export class Room {
         }, networkingRate);
     }
     genNetworkingData() {
-        let data = [];
-        for (const entity of this.globals.scene.entities) { data.push(entity.genNetworkingData()); }
-        for (const client of this.clients) { this.addClientData(client, data); }
+        let data = { time: performance.now(), entities: [] };
+        for (const entity of this.globals.scene.entities) { data.entities.push(entity.genNetworkingData()); }
+        for (const client of this.clients) { this.addClientData(client, data.entities); }
         return data;
     }
-    addClientData(client, data) {
+    addClientData(client, entities) {
         for (const player of client.players) {
-            data.push(player.genNetworkingData());
+            entities.push(player.genNetworkingData());
         }
     }
     removeClient(client) {

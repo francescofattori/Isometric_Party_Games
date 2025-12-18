@@ -7,57 +7,7 @@ import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
 //----------
-export const networkingRate = 30;//times a second
-function on(socket, client) {
-    return {
-        "disconnect": () => {
-            client.gameRoom.removeClient(client);
-            let ids = [];
-            for (const player of client.players) {
-                ids.push(player.id.value);
-                player.destroy(client.gameRoom.globals.scene, client.gameRoom.globals.world);
-            }
-            socket.broadcastToRoom(client, "clientDisconnected", ids);
-            console.log("user" + client.id + " disconnected");
-        },
-        "joinRequest": (data) => {
-            let gameName = data.game; let roomId = data.room;
-            for (const r of rooms) {
-                if (r.gameName == gameName && r.id == roomId) {
-                    r.clients.push(client);
-                    client.gameRoom = r; client.join(r.id);
-                    socket.emit(client, "joined");
-                    console.log("user" + client.id + " joined room: " + r.id);
-                    break;
-                }
-            }
-        },
-        "joinData": async (data) => {
-            for (const player of data) {
-                let p = new Player(player.pos); await p.init(client.gameRoom.globals.world);
-                p.clientId = player.id; client.players.push(p);
-            }
-            socket.emit(client, "joinData", Socket.genJoinData(client));
-            let playersData = [];
-            for (const player of client.players) {
-                playersData.push(player.genNetworkingData());
-            }
-            socket.broadcastToRoom(client, "clientJoined", playersData);
-        },
-        "update": (data) => {
-            if (!client.gameRoom) return;
-            for (const playerData of data) {
-                const player = Entity.getEntity(client, playerData.id);
-                player.inputVel = playerData.inputVel;
-                player.rigidbody.velocity.z = playerData.inputVel.z;
-                player.controller.rightAngle = playerData.rightAngle;
-                player.sprite.anim = playerData.sprite.anim;
-                player.sprite.flip = new vec2(playerData.sprite.flip);
-                player.sprite.back = playerData.sprite.back;
-            }
-        }
-    }
-}
+export const networkingRate = 100; //times a second
 export class Socket {
     static genJoinData(client) {
         const room = client.gameRoom;
@@ -72,47 +22,46 @@ export class Socket {
         for (const entity of room.globals.scene.entities) { data.entities.push(entity.genNetworkingData()); }
         return data;
     }
-    hostSocketIO(server, on) {
-        this.io = new Socket_IO_Server(server, { cors: { origin: "*" } });
-        this.io.on("connection", (client) => {
-            client.players = [];
-            console.log("user" + client.id + " connected");
-            client.on("disconnect", () => {
-                client.room.removeClient(client);
+    standardOn = this.standardOn.bind(this);
+    standardOn(client) {
+        return {
+            "disconnect": () => {
+                client.gameRoom.removeClient(client);
                 let ids = [];
                 for (const player of client.players) {
                     ids.push(player.id.value);
-                    player.destroy(client.room.globals.scene, client.room.globals.world);
+                    player.destroy(client.gameRoom.globals.scene, client.gameRoom.globals.world);
                 }
-                client.broadcast.to(client.room.id).emit("clientDisconnected", ids);
+                this.broadcastToRoom(client, "clientDisconnected", ids);
                 console.log("user" + client.id + " disconnected");
-            });
-            client.on("joinRequest", (data) => {
+            },
+            "ping": () => { this.emit(client, "pong"); },
+            "joinRequest": (data) => {
                 let gameName = data.game; let roomId = data.room;
                 for (const r of rooms) {
                     if (r.gameName == gameName && r.id == roomId) {
-                        r.clients.push(client); client.room = r;
-                        client.join(r.id);
-                        client.emit("joined");
+                        r.clients.push(client);
+                        client.gameRoom = r; client.join(r.id);
+                        this.emit(client, "joined");
                         console.log("user" + client.id + " joined room: " + r.id);
                         break;
                     }
                 }
-            });
-            client.on("joinData", async (data) => {
+            },
+            "joinData": async (data) => {
                 for (const player of data) {
-                    let p = new Player(player.pos); await p.init(client.room.globals.world);
+                    let p = new Player(player.pos); await p.init(client.gameRoom.globals.world);
                     p.clientId = player.id; client.players.push(p);
                 }
-                client.emit("joinData", Socket.genJoinData(client));
+                this.emit(client, "joinData", Socket.genJoinData(client));
                 let playersData = [];
                 for (const player of client.players) {
                     playersData.push(player.genNetworkingData());
                 }
-                client.broadcast.to(client.room.id).emit("clientJoined", playersData);
-            });
-            client.on("update", (data) => {
-                if (!client.room) return;
+                this.broadcastToRoom(client, "clientJoined", playersData);
+            },
+            "update": (data) => {
+                if (!client.gameRoom) return;
                 for (const playerData of data) {
                     const player = Entity.getEntity(client, playerData.id);
                     player.inputVel = playerData.inputVel;
@@ -122,8 +71,8 @@ export class Socket {
                     player.sprite.flip = new vec2(playerData.sprite.flip);
                     player.sprite.back = playerData.sprite.back;
                 }
-            });
-        });
+            }
+        }
     }
     host(server, library, port, _public) {
         this.library = library;
@@ -138,7 +87,7 @@ export class Socket {
         }
         this.on("connection", (client) => {
             client.players = [];
-            let clientOns = on(this, client);
+            let clientOns = this.standardOn(client);
             for (const event in clientOns) {
                 this.onClient(client, event, clientOns[event]);
             }

@@ -1,12 +1,15 @@
-import { io as Socket_IO } from "../server/node_modules/socket.io/client-dist/socket.io.esm.min.js";
 import { geckos as Geckos_IO } from "../include/geckos.io-client.mjs";
-import { startLoop, endLoop } from "../common/loop.mjs";
+import { io as Socket_IO } from "../server/node_modules/socket.io/client-dist/socket.io.esm.min.js";
 import { localPlayers, remotePlayers } from "./client.mjs";
 import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
+import { endLoop, startLoop } from "../common/loop.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
-export const networkingRate = 30;//times a second
+
+export const networkingRate = 50;//times a second
+export const pingRate = 5;//times a second
 export class Socket {
+    ping = 0; pingTime = 0; pingCount=0;
     connect(library, options) {
         this.library = library;
         this.options = options;
@@ -57,6 +60,9 @@ export class Socket {
                     player.destroy();
                 }
             },
+            "pong": () => {
+                this.ping = performance.now() - this.pingTime;
+            },
             "log": (data) => {
                 console.log(data);
             },
@@ -74,6 +80,11 @@ export class Socket {
                     player.id.value = playerData.id;
                 }
                 this.loop = startLoop(() => {
+                    this.pingCount += 1;
+                    if (this.pingCount > networkingRate / pingRate) {
+                        this.emit("ping"); this.pingTime = performance.now();
+                        this.pingCount = 0;
+                    }
                     this.emit("update", this.genUpdateData());
                 }, networkingRate);
             },
@@ -91,10 +102,10 @@ export class Socket {
                 }
             },
             "update": (data) => {
-                for (const entityData of data) {
+                for (const entityData of data.entities) {
                     const entity = Entity.getEntity(entityData.id);
                     if (!entity) continue;
-                    entity.setPos(new vec3(entityData.pos));
+                    entity.setPos(new vec3(entityData.pos).plus(new vec3(entityData.vel).times(this.ping * 0.001)));
                     let index = localPlayers.indexOf(entity);
                     if (index > -1) continue;
                     entity.setVel(new vec3(entityData.vel));

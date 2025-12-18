@@ -62,21 +62,26 @@ player.sprite.tint = 0xfcc2c2;
 
 renderer.start();
 let url = window.location.protocol + "//" + window.location.hostname;
-socket.connect("geckos.io", {
+/*socket.connect("geckos.io", {
     url: url, port: "5501", on: {
         "connect": () => {
             socket.standardOn("geckos.io", { url: url, port: "5501" })["connect"]();
             socket.emit("joinRequest", { game: game.name, room: 1 });
         }
     }
-});
-
+});*/
+let n = 0; let t = performance.now();
 startLoop(
     (loop) => {
         camera.update();
         for (const entity of scene.entities) { entity.update(); }
         for (const player of localPlayers) player.update();
         world.update();
-        //for (const player of remotePlayers) player.update();
+        for (const player of remotePlayers) player.update();
+        //console.log((performance.now()-t).toFixed(1)); t = performance.now();
+        /*n++;
+        if (n > 1000) {
+            n = 0; console.log((performance.now() - t)/1000); t = performance.now();
+        }*/
     },
     world.updateRate);
