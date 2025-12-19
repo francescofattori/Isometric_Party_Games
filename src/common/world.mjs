@@ -5,10 +5,11 @@ export class World {
     get updateRate() { return this.#updateRate; }
     get bodies() { return this.cannonWorld.bodies; }
     get time() { return this.cannonWorld.time; }
+    get dt() { return this.cannonWorld.dt; }
     gravity = new CANNON.Vec3(0, 0, -40);
     updateTime = 0; lastUpdate = 0; statTime = 0;
     updateTimeSum = 0; FPSSum = 0; statCount = 0;
-    run = true; dt = 1.0 / this.#updateRate;
+    run = true;
     constructor() {
         this.cannonWorld = new CANNON.World();
     }
@@ -19,7 +20,7 @@ export class World {
     }
     async init(gameInfo, assets) {
         this.cannonWorld.gravity = this.gravity;
-        this.cannonWorld.dt = this.dt;
+        this.cannonWorld.dt = 1.0 / this.#updateRate;
         this.materials = {};
         let data = await this.#getMaterialsTable(gameInfo, assets);
         if (data != undefined) {

@@ -71,17 +71,16 @@ let url = window.location.protocol + "//" + window.location.hostname;
     }
 });*/
 let n = 0; let t = performance.now();
-startLoop(
-    (loop) => {
-        camera.update();
-        for (const entity of scene.entities) { entity.update(); }
-        for (const player of localPlayers) player.update();
-        world.update();
-        for (const player of remotePlayers) player.update();
-        //console.log((performance.now()-t).toFixed(1)); t = performance.now();
-        /*n++;
-        if (n > 1000) {
-            n = 0; console.log((performance.now() - t)/1000); t = performance.now();
-        }*/
-    },
-    world.updateRate);
+startLoop((loop) => {
+    camera.update();
+    for (const entity of scene.entities) { entity.update(); }
+    for (const player of localPlayers) player.update();
+    world.update();
+    for (const player of remotePlayers) player.update();
+    //console.log((performance.now()-t).toFixed(1)); t = performance.now();
+    /*n++;
+    if (n > 1000) {
+        n = 0; console.log((performance.now() - t)/1000); t = performance.now();
+    }*/
+}, world.updateRate);
+
