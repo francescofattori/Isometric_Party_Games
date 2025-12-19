@@ -1,5 +1,5 @@
 import * as PIXI from "../include/pixi.mjs";
-import { assets, gameInfo, localPlayers, remotePlayers, scene, socket, world } from "./client.mjs";
+import { assets, gameInfo, localPlayers, remotePlayers, scene, socket, world, updateLoop } from "./client.mjs";
 export const pixi = new PIXI.Application();
 export const htmlStats = document.getElementById("stats");
 export const htmlViewPort = document.getElementById("viewport");
@@ -29,7 +29,7 @@ export class Renderer {
                 world.statTime = world.time;
                 htmlStats.innerText =
                     "fps: " + (world.FPSSum / world.statCount).toFixed(0) +
-                    " uT: " + (world.updateTimeSum / world.statCount).toFixed(2) + "ms" +
+                    " ups: " + (world.statCount / world.updateTimeSum).toFixed(0) +
                     " ping: " + socket.ping.toFixed(0) + "ms";
                 world.updateTimeSum = 0; world.FPSSum = 0; world.statCount = 0;
             }

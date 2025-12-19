@@ -51,8 +51,9 @@ export class Socket {
     }
     standardOn(library, options) {
         return {
-            "connect": () => {
-                console.log("Connected to server:" + options.url + ":" + options.port + " using " + library);
+            "connect": (error) => {
+                if (error) console.error(error.message);
+                else console.log("Connected to server:" + options.url + ":" + options.port + " using " + library);
             },
             "disconnect": () => {
                 console.log("Disconnected from server");
@@ -61,7 +62,7 @@ export class Socket {
                 }
             },
             "pong": () => {
-                this.ping = performance.now() - this.pingTime;
+                this.ping = 0.5 * (performance.now() - this.pingTime);
             },
             "log": (data) => {
                 console.log(data);
@@ -80,8 +81,8 @@ export class Socket {
                     player.id.value = playerData.id;
                 }
                 this.loop = startLoop(() => {
-                    this.pingCount += 1;
-                    if (this.pingCount > networkingRate / pingRate) {
+                    this.pingCount++;
+                    if (this.pingCount >= networkingRate / pingRate) {
                         this.emit("ping"); this.pingTime = performance.now();
                         this.pingCount = 0;
                     }
@@ -105,7 +106,7 @@ export class Socket {
                 for (const entityData of data.entities) {
                     const entity = Entity.getEntity(entityData.id);
                     if (!entity) continue;
-                    entity.setPos(new vec3(entityData.pos).plus(new vec3(entityData.vel).times(this.ping * 0.001)));
+                    entity.setPos(new vec3(entityData.pos));//.plus(new vec3(entityData.vel).times(this.ping * 0.001)));
                     let index = localPlayers.indexOf(entity);
                     if (index > -1) continue;
                     entity.setVel(new vec3(entityData.vel));

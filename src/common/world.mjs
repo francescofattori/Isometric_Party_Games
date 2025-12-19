@@ -1,7 +1,7 @@
 //CLIENT
 import * as CANNON from "../include/cannon.mjs";
 export class World {
-    #updateRate = 200; //times a second
+    #updateRate = 100; //times a second
     get updateRate() { return this.#updateRate; }
     get bodies() { return this.cannonWorld.bodies; }
     get time() { return this.cannonWorld.time; }
@@ -47,7 +47,7 @@ export class World {
         this.cannonWorld.removeBody(body);
     }
     update() {
-        let t = performance.now() / 1000.0;
+        let t = performance.now() * 0.001;
         this.updateTime = t - this.lastUpdate;
         this.cannonWorld.step(this.dt, this.updateTime);
         this.lastUpdate = t;

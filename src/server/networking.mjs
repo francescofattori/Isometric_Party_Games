@@ -7,7 +7,7 @@ import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
 //----------
-export const networkingRate = 100; //times a second
+export const networkingRate = 50; //times a second
 export class Socket {
     static genJoinData(client) {
         const room = client.gameRoom;

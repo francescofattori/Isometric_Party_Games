@@ -13,7 +13,7 @@ export class Player extends CommonPlayer(Entity) {
             { attribute: "handTexture", src: "sprites/hand.png", type: "texture", root: true }
         ];
     }
-    async init() {
+    async init(remote = false) {
         await super.init();
         this.controller = new Controller(this);
     }
