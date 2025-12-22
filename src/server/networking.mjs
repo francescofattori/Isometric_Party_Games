@@ -5,7 +5,7 @@ import { geckos as Geckos_IO_Server, iceServers } from "@geckos.io/server";
 import { rooms } from "./server.mjs";
 import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
-import { vec2, vec3 } from "../common/vector.mjs";
+import { vec2 } from "../common/vector.mjs";
 //----------
 export const networkingRate = 50; //times a second
 export class Socket {
@@ -35,7 +35,7 @@ export class Socket {
                 this.broadcastToRoom(client, "clientDisconnected", ids);
                 console.log("user" + client.id + " disconnected");
             },
-            "ping": () => { this.emit(client, "pong"); },
+            "ping": () => { this.emit(client, "pong", client.gameRoom.globals.world.time); },
             "joinRequest": (data) => {
                 let gameName = data.game; let roomId = data.room;
                 for (const r of rooms) {
@@ -64,9 +64,10 @@ export class Socket {
                 if (!client.gameRoom) return;
                 for (const playerData of data) {
                     const player = Entity.getEntity(client, playerData.id);
-                    player.inputVel = playerData.inputVel;
-                    player.rigidbody.velocity.z = playerData.inputVel.z;
-                    player.controller.rightAngle = playerData.rightAngle;
+                    player.controller.leftStick = new vec2(playerData.leftStick);
+                    player.controller.jump = playerData.jump;
+                    player.controller.run = playerData.run;
+                    player.controller.rightStick = playerData.rightStick;
                     player.sprite.anim = playerData.sprite.anim;
                     player.sprite.flip = new vec2(playerData.sprite.flip);
                     player.sprite.back = playerData.sprite.back;

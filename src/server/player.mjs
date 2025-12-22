@@ -1,6 +1,7 @@
 //SERVER
 import { Player as CommonPlayer } from "../common/player.mjs";
 import { Entity } from "./entity.mjs";
+import { Controller } from "./controller.mjs";
 export class Player extends CommonPlayer(Entity) {
     static getPlayer(client, id) {
         for (const player of client.players) {
@@ -18,11 +19,11 @@ export class Player extends CommonPlayer(Entity) {
         }
         return data;
     }
-    update() {
-        this.rigidbody.velocity.x = this.inputVel.x;
-        this.rigidbody.velocity.y = this.inputVel.y;
-    }
     async init(world) {
         await super.init(world);
+        this.controller = new Controller();
+    }
+    update(world) {
+        super.update(world);
     }
 }

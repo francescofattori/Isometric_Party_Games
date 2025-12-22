@@ -1,5 +1,5 @@
 //SERVER
-import { startLoop } from "../common/loop.mjs";
+import { startLoop } from "./loop.mjs";
 import { World } from "../common/world.mjs";
 import { networkingRate } from "./networking.mjs";
 import { Scene } from "./scene.mjs";
@@ -25,7 +25,7 @@ export class Room {
         this.updateLoop = startLoop(() => {
             for (const entity of this.globals.scene.entities) { entity.update(); }
             for (const client of this.clients)
-                for (const player of client.players) { player.update(); }
+                for (const player of client.players) { player.update(this.globals.world); }
             this.globals.world.update();
             this.game.update(this.globals.scene, this.globals.world);
         }, this.globals.world.updateRate);
@@ -34,7 +34,7 @@ export class Room {
         }, networkingRate);
     }
     genNetworkingData() {
-        let data = { time: performance.now(), entities: [] };
+        let data = { time: this.globals.world.time, entities: [] };
         for (const entity of this.globals.scene.entities) { data.entities.push(entity.genNetworkingData()); }
         for (const client of this.clients) { this.addClientData(client, data.entities); }
         return data;

@@ -1,5 +1,5 @@
 import * as PIXI from "../include/pixi.mjs";
-import { assets, gameInfo, localPlayers, remotePlayers, scene, socket, world, updateLoop } from "./client.mjs";
+import { assets, gameInfo, localPlayers, remotePlayers, scene, socket, world } from "./client.mjs";
 export const pixi = new PIXI.Application();
 export const htmlStats = document.getElementById("stats");
 export const htmlViewPort = document.getElementById("viewport");

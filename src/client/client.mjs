@@ -1,5 +1,4 @@
 //CLIENT
-import * as PIXI from "../include/pixi.mjs";
 import { AssetsManager } from "./assets.mjs";
 import { World } from "../common/world.mjs";
 import { Renderer } from "./renderer.mjs";
@@ -9,8 +8,8 @@ import { Socket } from "./networking.mjs";
 import { Controller } from "./controller.mjs";
 import { Player } from "./player.mjs";
 import { vec3 } from "../common/vector.mjs";
-import { startLoop, endLoop } from "../common/loop.mjs";
 import { Game } from "game";
+import { startLoop } from "./loop.mjs";
 //global variables
 export const assets = new AssetsManager();
 export const world = new World();
@@ -62,10 +61,11 @@ player.sprite.tint = 0xfcc2c2;
 
 renderer.start();
 let url = window.location.protocol + "//" + window.location.hostname;
-socket.connect("geckos.io", {
+let library = "socket.io";
+socket.connect(library, {
     url: url, port: "5501", on: {
         "connect": (error) => {
-            socket.standardOn("geckos.io", { url: url, port: "5501" })["connect"](error);
+            socket.standardOn(library, { url: url, port: "5501" })["connect"](error);
             socket.emit("joinRequest", { game: game.name, room: 1 });
         }
     }
@@ -75,6 +75,6 @@ export const updateLoop = startLoop((loop) => {
     for (const entity of scene.entities) { entity.update(); }
     for (const player of localPlayers) player.update();
     world.update();
-    //for (const player of remotePlayers) player.update();
 }, world.updateRate);
+
 

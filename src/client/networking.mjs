@@ -1,15 +1,15 @@
 import { geckos as Geckos_IO } from "../include/geckos.io-client.mjs";
-import { io as Socket_IO } from "../server/node_modules/socket.io/client-dist/socket.io.esm.min.js";
-import { localPlayers, remotePlayers } from "./client.mjs";
+import { io as Socket_IO } from "../node_modules/socket.io/client-dist/socket.io.esm.min.js";
+import { localPlayers, remotePlayers, world } from "./client.mjs";
 import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
-import { endLoop, startLoop } from "../common/loop.mjs";
+import { endLoop, startLoop } from "./loop.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
 
 export const networkingRate = 50;//times a second
 export const pingRate = 5;//times a second
 export class Socket {
-    ping = 0; pingTime = 0; pingCount=0;
+    ping = 0; pingTime = 0; pingCount = networkingRate / pingRate;
     connect(library, options) {
         this.library = library;
         this.options = options;
@@ -61,8 +61,9 @@ export class Socket {
                     player.destroy();
                 }
             },
-            "pong": () => {
+            "pong": (data) => {
                 this.ping = 0.5 * (performance.now() - this.pingTime);
+                world.serverTime = data;
             },
             "log": (data) => {
                 console.log(data);
@@ -103,13 +104,15 @@ export class Socket {
                 }
             },
             "update": (data) => {
+                if (Math.abs(world.serverTime - data.time) > 0.075) return;
+                //console.log("update");
                 for (const entityData of data.entities) {
                     const entity = Entity.getEntity(entityData.id);
                     if (!entity) continue;
-                    entity.setPos(new vec3(entityData.pos));//.plus(new vec3(entityData.vel).times(this.ping * 0.001)));
+                    entity.setPos(new vec3(entityData.pos).plus(entity.pos).times(0.5));
                     let index = localPlayers.indexOf(entity);
                     if (index > -1) continue;
-                    entity.setVel(new vec3(entityData.vel));
+                    entity.setVel(new vec3());
                     if (entityData.player) {
                         entity.controller.rightAngle = entityData.rightAngle;
                         entity.sprite.anim = entityData.sprite.anim;
@@ -131,8 +134,8 @@ export class Socket {
         let data = [];
         for (const player of localPlayers) {
             data.push({
-                id: player.id.value, inputVel: player.inputVel,
-                rightAngle: player.controller.rightAngle,
+                id: player.id.value, jump: player.controller.jump, run: player.controller.run,
+                leftStick: player.controller.leftStick, rightStick: player.controller.rightStick,
                 sprite: { anim: player.sprite.anim, flip: player.sprite.flip, back: player.sprite.back }
             });
         }

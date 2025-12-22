@@ -1,8 +1,8 @@
 {
     "port": 5501,
-    "public": false,
+    "public": true,
     "hostWebsite": true,
     "protocol": "http",
     "sslOptions": {"key": "cert/key.pem", "cert": "cert/cert.pem"},
-    "library": "geckos.io"
+    "library": "socket.io"
 }

@@ -13,7 +13,7 @@ export class Player extends CommonPlayer(Entity) {
             { attribute: "handTexture", src: "sprites/hand.png", type: "texture", root: true }
         ];
     }
-    async init(remote = false) {
+    async init() {
         await super.init();
         this.controller = new Controller(this);
     }
@@ -40,42 +40,7 @@ export class Player extends CommonPlayer(Entity) {
         this.leftHand.sprite = new Sprite(this.assets.handTexture);
     }
     update() {
-        this.controller.genInputs();
-        //Physics
-        let velocity = this.controller.leftStick.rotated(-Math.PI / 4);
-        let speed = this.speed;
-        let scalar = this.controller.leftStick.scalar(this.controller.rightStick);
-        if (this.controller.run && scalar > 0.85) speed *= 1.33;
-        let percSpeed = (4 + this.controller.leftStick.scalar(this.controller.rightStick)) / 5.0;
-        this.rigidbody.velocity.x = percSpeed * speed * velocity.x;
-        this.rigidbody.velocity.y = percSpeed * speed * velocity.y;
-        if (this.sprite.anim == "jump" && this.controller.jump) { this.rigidbody.velocity.z += 2.5 * this.jumpForce * world.dt; }
-        if (this.controller.jump && this.grounded) {
-            this.sprite.anim = "jump";
-            this.grounded = false;
-            this.rigidbody.velocity.z += this.jumpForce;
-        }
-        this.inputVel = new vec3(this.rigidbody.velocity);//expected input velocity not considering collisions
-        //Graphics
-        if (this.controller.rightStick.x < 0.0 ||
-            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x < 0.0)) this.sprite.flip.x = -1;
-        if (this.controller.rightStick.x > 0.0 ||
-            (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x > 0.0)) this.sprite.flip.x = 1;
-        if (this.controller.rightStick.y > 0.0 ||
-            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y > 0.0)) this.sprite.back = true;
-        if (this.controller.rightStick.y < 0.0 ||
-            (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y < 0.0)) this.sprite.back = false;
-        if (this.grounded && this.sprite.anim != "land") {
-            if (this.controller.leftStick.length() == 0) this.sprite.anim = "idle";
-            else this.sprite.anim = "walk";
-            let s = Math.abs(this.controller.leftStick.scalar(new vec2(0, 1)));
-            if (this.sprite.anim == "walk" && this.controller.run && s < 0.75 && scalar > 0.85)
-                this.sprite.anim = "run";
-        } else if (!this.grounded) {
-            if (this.rigidbody.velocity.z < 0) this.sprite.anim = "fall";
-            else if (this.sprite.anim != "jump") this.sprite.anim = "ascend";
-        }
-        if (world.time - this.controller.afkTime > 10000) this.sprite.anim = "sit";
+        super.update(world);
     }
     calcHandsPos() {
         let anim = this.sprite.anim;

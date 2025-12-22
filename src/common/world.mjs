@@ -5,10 +5,11 @@ export class World {
     get updateRate() { return this.#updateRate; }
     get bodies() { return this.cannonWorld.bodies; }
     get time() { return this.cannonWorld.time; }
-    get dt() { return this.cannonWorld.dt; }
+    get dt() { return this.time - this.previousTime; }
     gravity = new CANNON.Vec3(0, 0, -40);
     updateTime = 0; lastUpdate = 0; statTime = 0;
     updateTimeSum = 0; FPSSum = 0; statCount = 0;
+    previousTime = 0; serverTime = 0;
     run = true;
     constructor() {
         this.cannonWorld = new CANNON.World();
@@ -49,7 +50,9 @@ export class World {
     update() {
         let t = performance.now() * 0.001;
         this.updateTime = t - this.lastUpdate;
-        this.cannonWorld.step(this.dt, this.updateTime);
+        this.previousTime = this.time;
+        this.cannonWorld.step(this.cannonWorld.dt, this.updateTime);
         this.lastUpdate = t;
+        this.serverTime += this.dt;
     }
 }
