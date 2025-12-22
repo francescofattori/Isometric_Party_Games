@@ -7,15 +7,16 @@ export function Player(EntityClass) {
         rightHand = { pos: new vec3() };
         leftHand = { pos: new vec3() };
         sprite = { anim: "idle", flip: { x: 1, y: 1 }, back: false };
+        landDuration = 3 / 60 / 0.2;//nFrames / 60 / animSpeed
         get pos() { return this.rigidbody.position; }
         async getInfo() {
             this.infoLoaded = true;
         }
-        initPhysics(world) {
+        initPhysics() {
             this.rigidbody = new CANNON.Body({ mass: 35, fixedRotation: true });
-            let upSphere = new CANNON.Sphere(0.25); upSphere.material = world.materials["player"];
-            let downSphere = new CANNON.Sphere(0.25); downSphere.material = world.materials["player"];
-            let cylinder = new CANNON.Cylinder(0.25, 0.25, 0.5); cylinder.material = world.materials["player"];
+            let upSphere = new CANNON.Sphere(0.25); upSphere.material = this.world.materials["player"];
+            let downSphere = new CANNON.Sphere(0.25); downSphere.material = this.world.materials["player"];
+            let cylinder = new CANNON.Cylinder(0.25, 0.25, 0.5); cylinder.material = this.world.materials["player"];
             downSphere.tag = "feet";
             let q = new CANNON.Quaternion().setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * 0.5);
             this.rigidbody.addShape(upSphere, new CANNON.Vec3(0, 0, 0.25));
@@ -24,7 +25,7 @@ export function Player(EntityClass) {
             this.size = new vec3(0.5, 0.5, 1);
             this.rigidbody.position.set(this.info.pos.x, this.info.pos.y, this.info.pos.z);
             this.rigidbody.addEventListener("collide", this.collide);
-            world.addBody(this.rigidbody);
+            this.world.addBody(this.rigidbody);
         }
         collide = this.collide.bind(this);
         collide(e) {
@@ -36,10 +37,10 @@ export function Player(EntityClass) {
                     this.rigidbody.position.set(newPos.x, newPos.y, newPos.z);
                 }
                 this.grounded = true;
-                if (this.sprite.anim == "fall") this.sprite.anim = "land";
+                if (this.sprite.anim == "fall") { this.sprite.anim = "land"; this.landTime = this.world.time; }
             }
         }
-        update(world) {
+        update() {
             this.controller.genInputs();
             let velocity = this.controller.leftStick.rotated(-Math.PI / 4);
             let speed = this.speed;
@@ -48,7 +49,10 @@ export function Player(EntityClass) {
             let percSpeed = (4 + this.controller.leftStick.scalar(this.controller.rightStick)) / 5.0;
             this.rigidbody.velocity.x = percSpeed * speed * velocity.x;
             this.rigidbody.velocity.y = percSpeed * speed * velocity.y;
-            if (this.sprite.anim == "jump" && this.controller.jump) { this.rigidbody.velocity.z += 2.5 * this.jumpForce * world.dt; }
+            if (this.sprite.anim == "jump" && this.controller.jump) { 
+                //this.rigidbody.velocity.z += 2.5 * this.jumpForce * this.world.dt;
+                this.rigidbody.applyForce(new CANNON.Vec3(0, 0, 2.5 * this.jumpForce*this.rigidbody.mass));
+            }
             if (this.controller.jump && this.grounded) {
                 this.sprite.anim = "jump";
                 this.grounded = false;
@@ -62,6 +66,7 @@ export function Player(EntityClass) {
                 (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y > 0.0)) this.sprite.back = true;
             if (this.controller.rightStick.y < 0.0 ||
                 (this.controller.rightStick.y == 0.0 && this.controller.leftStick.y < 0.0)) this.sprite.back = false;
+            if (this.sprite.anim == "land" && this.world.time - this.landTime > this.landDuration) this.sprite.anim = "idle";
             if (this.grounded && this.sprite.anim != "land") {
                 if (this.controller.leftStick.length() == 0) this.sprite.anim = "idle";
                 else this.sprite.anim = "walk";
@@ -72,7 +77,7 @@ export function Player(EntityClass) {
                 if (this.rigidbody.velocity.z < 0) this.sprite.anim = "fall";
                 else if (this.sprite.anim != "jump") this.sprite.anim = "ascend";
             }
-            //if (world.time - this.controller.afkTime > 10000) this.sprite.anim = "sit";
+            //if (this.world.time - this.controller.afkTime > 10000) this.sprite.anim = "sit";
         }
     }
 }

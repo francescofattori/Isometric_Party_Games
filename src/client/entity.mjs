@@ -20,7 +20,7 @@ export class Entity extends CommonEntity {
         this.initGraphics();
     }
     destroy() {
-        super.destroy(scene, world);
+        super.destroy(scene);
         this.sprite.destroy();
         this.shadow.destroy();
     }
@@ -32,7 +32,7 @@ export class Entity extends CommonEntity {
         ray.mode = CANNON.RAY_MODES.CLOSEST;
         ray.skipBackfaces = true;
         let result = new CANNON.RaycastResult();
-        ray.intersectBodies(world.bodies, result);
+        ray.intersectBodies(this.world.bodies, result);
         let z = result.hitPointWorld.z;
         if (result.hasHit) {
             this.shadow.visible = true;

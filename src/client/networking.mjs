@@ -104,7 +104,7 @@ export class Socket {
                 }
             },
             "update": (data) => {
-                if (Math.abs(world.serverTime - data.time) > 0.075) return;
+                //if (Math.abs(world.serverTime - data.time) > 0.075) return;
                 //console.log("update");
                 for (const entityData of data.entities) {
                     const entity = Entity.getEntity(entityData.id);
@@ -112,7 +112,7 @@ export class Socket {
                     entity.setPos(new vec3(entityData.pos).plus(entity.pos).times(0.5));
                     let index = localPlayers.indexOf(entity);
                     if (index > -1) continue;
-                    entity.setVel(new vec3());
+                    entity.setVel(entityData.vel);
                     if (entityData.player) {
                         entity.controller.rightAngle = entityData.rightAngle;
                         entity.sprite.anim = entityData.sprite.anim;
@@ -136,7 +136,6 @@ export class Socket {
             data.push({
                 id: player.id.value, jump: player.controller.jump, run: player.controller.run,
                 leftStick: player.controller.leftStick, rightStick: player.controller.rightStick,
-                sprite: { anim: player.sprite.anim, flip: player.sprite.flip, back: player.sprite.back }
             });
         }
         return data;

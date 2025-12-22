@@ -1,6 +1,7 @@
 -send input with networking not velocity (client velocity correction and position correction with ping approximation?)
 -server should also handle animations!!!
 -check for usage of world.dt and dt = world.time - world.previousTime...
+-set this.world in entity class!!!
 
 -design multiple players system
 -check classes to free assets data when initialized and add loaded check as in scene to all classes

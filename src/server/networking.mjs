@@ -68,9 +68,6 @@ export class Socket {
                     player.controller.jump = playerData.jump;
                     player.controller.run = playerData.run;
                     player.controller.rightStick = playerData.rightStick;
-                    player.sprite.anim = playerData.sprite.anim;
-                    player.sprite.flip = new vec2(playerData.sprite.flip);
-                    player.sprite.back = playerData.sprite.back;
                 }
             }
         }
