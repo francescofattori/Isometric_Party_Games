@@ -1,16 +1,19 @@
--send input with networking not velocity (client velocity correction and position correction with ping approximation?)
--server should also handle animations!!!
--check for usage of world.dt and dt = world.time - world.previousTime...
--set this.world in entity class (use rigidbody.world)!!!
+-change camera softzone and hardzone based on screen position (for vertical screen)
+-design multiple players system (how players enter and when they can join, what happens then (modular on the game), spectators...)
+-options menu with dedicated game section (cookies to save info)
+-make clothes system (3 pieces)
+-make save system (as user with username and local for offline games (both easily exportable))
+-search for audio libraries
+-test shooter weapon grip
+-make ui system? (to make games more easily???)
 
--design multiple players system
+
+-check for usage of world.dt and dt = world.time - world.previousTime... (use dt now is variable)
 -check classes to free assets data when initialized and add loaded check as in scene to all classes
 -use new URL instead of URL.parse
-
 -revise controller classes and afk animation
 -adjust animation speed
 -make advancedSprite class for multiple transformations
--change camera softzone and hardzone based on screen position (for vertical screen)
 -test shooter weapon grip
 
 -GAME IDEAS

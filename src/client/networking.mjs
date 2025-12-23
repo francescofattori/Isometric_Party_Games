@@ -104,8 +104,7 @@ export class Socket {
                 }
             },
             "update": (data) => {
-                //if (Math.abs(world.serverTime - data.time) > 0.075) return;
-                //console.log("update");
+                if (Math.abs(world.serverTime - data.time) > 0.1) return;
                 for (const entityData of data.entities) {
                     const entity = Entity.getEntity(entityData.id);
                     if (!entity) continue;

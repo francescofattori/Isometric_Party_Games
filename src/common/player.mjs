@@ -7,7 +7,7 @@ export function Player(EntityClass) {
         rightHand = { pos: new vec3() };
         leftHand = { pos: new vec3() };
         sprite = { anim: "idle", flip: { x: 1, y: 1 }, back: false };
-        landDuration = 3 / 60 / 0.2;//nFrames / 60 / animSpeed
+        landDuration = 3 / 60 / 0.2; //nFrames / 60 / animSpeed
         get pos() { return this.rigidbody.position; }
         async getInfo() {
             this.infoLoaded = true;
@@ -49,14 +49,14 @@ export function Player(EntityClass) {
             let percSpeed = (4 + this.controller.leftStick.scalar(this.controller.rightStick)) / 5.0;
             this.rigidbody.velocity.x = percSpeed * speed * velocity.x;
             this.rigidbody.velocity.y = percSpeed * speed * velocity.y;
-            if (this.sprite.anim == "jump" && this.controller.jump) { 
+            if (this.sprite.anim == "jump" && this.controller.jump) {
                 //this.rigidbody.velocity.z += 2.5 * this.jumpForce * this.world.dt;
-                this.rigidbody.applyForce(new CANNON.Vec3(0, 0, 2.5 * this.jumpForce*this.rigidbody.mass));
+                this.rigidbody.applyForce(new CANNON.Vec3(0, 0, 2.5 * this.jumpForce * this.rigidbody.mass));
             }
             if (this.controller.jump && this.grounded) {
                 this.sprite.anim = "jump";
                 this.grounded = false;
-                this.rigidbody.velocity.z += this.jumpForce;
+                this.rigidbody.velocity.z = this.jumpForce;
             }
             if (this.controller.rightStick.x < 0.0 ||
                 (this.controller.rightStick.x == 0.0 && this.controller.leftStick.x < 0.0)) this.sprite.flip.x = -1;

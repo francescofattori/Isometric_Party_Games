@@ -61,7 +61,7 @@ player.sprite.tint = 0xfcc2c2;
 
 renderer.start();
 let url = window.location.protocol + "//" + window.location.hostname;
-let library = "socket.io";
+let library = "geckos.io";
 socket.connect(library, {
     url: url, port: "5501", on: {
         "connect": (error) => {
