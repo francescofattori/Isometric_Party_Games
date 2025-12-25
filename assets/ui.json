@@ -4,5 +4,41 @@
         "src": "ui/marker.png",
         "type": "texture",
         "root": true
+    },
+    {
+        "attribute": "border",
+        "src": "ui/border.png",
+        "type": "texture",
+        "root": true
+    },
+    {
+        "attribute": "menu",
+        "src": "ui/menu.png",
+        "type": "texture",
+        "root": true
+    },
+    {
+        "attribute": "smallBorder",
+        "src": "ui/smallBorder.png",
+        "type": "texture",
+        "root": true
+    },
+    {
+        "attribute": "players",
+        "src": "ui/players.png",
+        "type": "texture",
+        "root": true
+    },
+    {
+        "attribute": "gear",
+        "src": "ui/gear.png",
+        "type": "texture",
+        "root": true
+    },
+    {
+        "attribute": "server",
+        "src": "ui/server.png",
+        "type": "texture",
+        "root": true
     }
 ]

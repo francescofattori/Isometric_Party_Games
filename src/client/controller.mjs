@@ -1,8 +1,7 @@
 const documentEventListeners = { keydown: [], keyup: [], mouseDown: [], mouseUp: [], mouseMove: [] }; //for handling key events
 import * as CANNON from "../include/cannon.mjs";
 import { pixPerUnit } from "./camera.mjs";
-import { pixi } from "./renderer.mjs";
-import { camera, scene, world, assets } from "./client.mjs";
+import { camera, scene, world, assets, renderer } from "./client.mjs";
 import { Sprite } from "./sprite.mjs";
 import { createTouchControls } from "./touchControls.mjs";
 import { vec2, vec3, clamp } from "../common/vector.mjs";
@@ -168,8 +167,8 @@ export class Controller {
         this.prevTime = world.time;
     }
     genMouseInputs() {
-        let dX = 0.25 * (this.mouseX - Math.floor(pixi.screen.width * 0.5)) / pixPerUnit;
-        let dY = 0.5 * (this.mouseY - Math.floor(pixi.screen.height * 0.5)) / pixPerUnit;
+        let dX = 0.25 * (this.mouseX - Math.floor(renderer.pixi.screen.width * 0.5)) / pixPerUnit;
+        let dY = 0.5 * (this.mouseY - Math.floor(renderer.pixi.screen.height * 0.5)) / pixPerUnit;
         this.mouseTargetLine.x = dX - dY + camera.pos.x;
         this.mouseTargetLine.y = -dX - dY + camera.pos.y;
         this.marker.visible = false;

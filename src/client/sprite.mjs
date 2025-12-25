@@ -1,6 +1,5 @@
 import * as PIXI from "../include/pixi.mjs";
-import { pixi } from "./renderer.mjs";
-import { camera, world } from "./client.mjs";
+import { camera, world, renderer } from "./client.mjs";
 import { vec2, clamp } from "../common/vector.mjs";
 export class Sprite {
     scale = new vec2(1, 1);
@@ -36,7 +35,7 @@ export class Sprite {
             this.pixiSprite.anchor.set(0.5, 0.5);
             if (anchor) { this.pixiSprite.anchor.set(anchor.x / texture.width, anchor.y / texture.height); }
         }
-        pixi.stage.addChild(this.pixiSprite);
+        renderer.pixi.stage.addChild(this.pixiSprite);
     }
     #setAnim(animName) {
         if (!this.animated) return;
@@ -65,5 +64,5 @@ export class Sprite {
         if (this.back) this.#setAnim("back_" + this.anim);
         else this.#setAnim(this.anim);
     }
-    destroy() { pixi.stage.removeChild(this.pixiSprite); }
+    destroy() { renderer.pixi.stage.removeChild(this.pixiSprite); }
 }

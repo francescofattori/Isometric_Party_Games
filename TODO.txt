@@ -1,11 +1,12 @@
+-options menu with dedicated game section (cookies to save info) (create basic ui system)
 -change camera softzone and hardzone based on screen position (for vertical screen)
--design multiple players system (how players enter and when they can join, what happens then (modular on the game), spectators...)
--options menu with dedicated game section (cookies to save info)
+-rework max and min zIndex of map
+-design multiple players system (how players enter and when they can join, what happens then (modular on the game), spectators...) 
 -make clothes system (3 pieces)
 -make save system (as user with username and local for offline games (both easily exportable))
 -search for audio libraries
 -test shooter weapon grip
--make ui system? (to make games more easily???)
+-make extended ui system? (to make games more easily???)
 
 
 -check for usage of world.dt and dt = world.time - world.previousTime... (use dt now is variable)

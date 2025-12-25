@@ -10,10 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@geckos.io/client": "^3.0.2",
     "@geckos.io/server": "^3.0.2",
     "express": "^5.2.1",
-    "socket.io": "^4.8.1",
-    "threads": "^1.7.0"
+    "socket.io": "^4.8.1"
   }
 }

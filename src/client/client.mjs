@@ -10,6 +10,7 @@ import { Player } from "./player.mjs";
 import { vec3 } from "../common/vector.mjs";
 import { Game } from "game";
 import { startLoop } from "./loop.mjs";
+import { Menu } from "./ui.mjs";
 //global variables
 export const assets = new AssetsManager();
 export const world = new World();
@@ -62,14 +63,14 @@ player.sprite.tint = 0xfcc2c2;
 renderer.start();
 let url = window.location.protocol + "//" + window.location.hostname;
 let library = "geckos.io";
-socket.connect(library, {
+/*socket.connect(library, {
     url: url, port: "5501", on: {
         "connect": (error) => {
             socket.standardOn(library, { url: url, port: "5501" })["connect"](error);
             socket.emit("joinRequest", { game: game.name, room: 1 });
         }
     }
-});
+});*/
 export const updateLoop = startLoop((loop) => {
     camera.update();
     for (const entity of scene.entities) { entity.update(); }
@@ -77,4 +78,4 @@ export const updateLoop = startLoop((loop) => {
     world.update();
 }, world.updateRate);
 
-
+export const menu = new Menu();

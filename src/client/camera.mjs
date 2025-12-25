@@ -1,6 +1,5 @@
 //CLIENT
-import { pixi } from "./renderer.mjs";
-import { scene, world } from "./client.mjs";
+import { scene, world, renderer } from "./client.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
 export const pixPerUnit = 32;
 export class Camera {
@@ -11,7 +10,7 @@ export class Camera {
     hardZone = new vec3(2, 2, 4);
     set zoom(v) { this._zoom = v / devicePixelRatio; }
     get zoom() { return this._zoom; }
-    _zoom = Math.round(4 * (1+window.devicePixelRatio)*0.5) / window.devicePixelRatio;
+    _zoom = Math.round(4 * (1 + window.devicePixelRatio) * 0.5) / window.devicePixelRatio;
     zIndex(p) {
         let z = 1.0 + 2.0 * ((2 * p.z - p.x - p.y) - scene.map.maxZIndex) * scene.map.multZIndex;
         if (scene.map.heightAt(p) < 0) z -= 2;
@@ -23,8 +22,8 @@ export class Camera {
         let x = 0.5 * (pX - pY);
         let y = 0.5 * pZ + 0.25 * (pX + pY);
         let v = new vec2(
-            Math.floor(pixi.screen.width * 0.5) + x * pixPerUnit * this._zoom,
-            Math.floor(pixi.screen.height * 0.5) - y * pixPerUnit * this._zoom
+            Math.floor(renderer.pixi.screen.width * 0.5) + x * pixPerUnit * this._zoom,
+            Math.floor(renderer.pixi.screen.height * 0.5) - y * pixPerUnit * this._zoom
         );
         if (zIndex) v.zIndex = this.zIndex(p);
         return v;

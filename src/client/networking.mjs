@@ -1,5 +1,5 @@
 import { geckos as Geckos_IO } from "../include/geckos.io-client.mjs";
-import { io as Socket_IO } from "../node_modules/socket.io/client-dist/socket.io.esm.min.js";
+import { io as Socket_IO } from "../include/socket.io-client.mjs";
 import { localPlayers, remotePlayers, world } from "./client.mjs";
 import { Entity } from "./entity.mjs";
 import { Player } from "./player.mjs";
