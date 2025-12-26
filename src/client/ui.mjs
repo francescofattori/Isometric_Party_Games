@@ -1,267 +1,284 @@
 import * as PIXI from "../include/pixi.mjs";
 import { assets, renderer } from "./client.mjs";
-const pixUnit = Math.round(4 * (1 + window.devicePixelRatio) * 0.5) / window.devicePixelRatio;
-const borderHeight = 3;
-export const uiSize = 1; // implement gui size
-export class TextButton {
-    visible = true;
-    constructor(text = "", onClick = () => { }, texture = assets.ui.border, borderH = borderHeight) {
-        this.onClick = onClick;
-        this.sprite = new PIXI.NineSliceSprite({
-            texture: texture,
-            leftWidth: borderH,
-            rightWidth: borderH,
-            topHeight: borderH,
-            bottomHeight: borderH,
-            textureStyle: {
-                scaleMode: 'nearest',
-            }
-        });
-        this.text = new PIXI.Text({
-            text: text,
-            style: {
-                fontFamily: "pixelFont",
-                fontSize: Math.round(16 / window.devicePixelRatio) * window.devicePixelRatio,
-            },
-            textureStyle: {
-                scaleMode: 'nearest',
-            }
-        });
-        this.sprite.cursor = "pointer";
-        this.sprite.interactive = true;
-        this.sprite.buttonMode = true;
-        this.sprite.on('pointerdown', this.onClick);
-        renderer.pixi.stage.addChild(this.sprite);
-        renderer.pixi.stage.addChild(this.text);
-        this.draw();
-    }
-    draw() {
-        this.sprite.x = this.x;
-        this.sprite.y = this.y;
-        this.sprite.scale = { x: pixUnit, y: pixUnit };
-        this.sprite.zIndex = 3;
-        this.text.x = this.x + this.sprite.width * this.sprite.scale.x / 2 - this.text.width / 2;
-        this.text.y = this.y + this.sprite.height * this.sprite.scale.y / 2 - this.text.height / 2;
-        this.text.zIndex = 3.1;
-    }
-    show() { this.sprite.visible = true; this.text.visible = true; }
-    hide() { this.sprite.visible = false; this.text.visible = false; }
+
+export function calcPixSize() {
+    renderer.ui.pixSize = Math.round(2 * renderer.ui.guiScale * window.devicePixelRatio) / window.devicePixelRatio;
 }
-export class SpriteButton {
-    visible = true;
-    constructor(texture, onClick = () => { }) {
-        this.onClick = onClick;
-        this.sprite = new PIXI.Sprite({
-            texture: texture,
-            textureStyle: {
-                scaleMode: 'nearest'
-            }
-        });
-        this.sprite.cursor = "pointer";
-        this.sprite.scale = { x: pixUnit, y: pixUnit };
-        this.sprite.interactive = true;
-        this.sprite.buttonMode = true;
-        this.sprite.on('pointerdown', this.onClick);
-        renderer.pixi.stage.addChild(this.sprite);
-        this.draw();
-    }
-    draw() {
-        this.sprite.scale = { x: pixUnit, y: pixUnit };
-        this.sprite.zIndex = 3;
+export function calcFontSize() {
+    renderer.ui.fontSize = Math.round(16 / window.devicePixelRatio) * window.devicePixelRatio;
+}
+export class UIElement {
+    x = 0; y = 0; width = 0; height = 0;
+    sprite;
+    get anchor() { return this.sprite.anchor } set anchor(t) { this.sprite.anchor = t }
+    constructor(params = {}) {
+        this.x = params.x || 0; this.y = params.y || 0; this.width = params.width || 0; this.height = params.height || 0;
+        this.resolution = params.resolution || 1; this.zIndex = params.zIndex || 3;
     }
     show() { this.sprite.visible = true; }
     hide() { this.sprite.visible = false; }
+    static draw(elem) {
+        elem.sprite.x = elem.x; elem.sprite.y = elem.y;
+        elem.sprite.width = elem.width; elem.sprite.height = elem.height;
+        elem.sprite.tint = elem.tint; elem.sprite.zIndex = elem.zIndex;
+    }
+    draw() { UIElement.draw(this); }
 }
-export class Section {
-    elements = [];
-    visible = true;
-    height = 40;
-    width = 30;
-    static iconHeight = 4;
-    constructor(menu, texture) {
-        this.menu = menu;
-        this.icon = new PIXI.Sprite({
+export class Box extends UIElement {
+    constructor(params = {}) {
+        super(params);
+        this.border = params.border || "small"; this.tint = params.tint || 0xffffff;
+        this.borderSize = 1;
+        switch (this.border) {
+            case "none": default: this.texture = assets.ui.border; break;
+            case "small": this.texture = assets.ui.smallBorder; this.borderSize = 2; break;
+            case "round": this.texture = assets.ui.roundBorder; this.borderSize = 3; break;
+        }
+        this.sprite = new PIXI.NineSliceSprite({
+            texture: this.texture,
+            leftWidth: this.borderSize, rightWidth: this.borderSize,
+            topHeight: this.borderSize, bottomHeight: this.borderSize,
+            textureStyle: { scaleMode: 'nearest' }
+        });
+        Box.draw(this);
+        renderer.pixi.stage.addChild(this.sprite);
+    }
+    static draw(box) {
+        UIElement.draw(box);
+        box.sprite.scale = { x: box.resolution * renderer.ui.pixSize, y: box.resolution * renderer.ui.pixSize };
+    }
+    draw() { Box.draw(this); }
+}
+export class UISprite extends UIElement {
+    constructor(texture, params = {}) {
+        super(params);
+        this.sprite = new PIXI.Sprite({
             texture: texture,
-            anchor: 0.5,
-            textureStyle: {
-                scaleMode: 'nearest'
-            }
+            textureStyle: { scaleMode: 'nearest' }
         });
-        this.background = new PIXI.NineSliceSprite({
-            texture: assets.ui.border,
-            leftWidth: borderHeight,
-            rightWidth: borderHeight,
-            topHeight: borderHeight,
-            bottomHeight: borderHeight,
-            textureStyle: {
-                scaleMode: 'nearest'
-            }
-        });
-        this.background.tint = this.menu.background.tint;
-        this.background.visible = false;
-        this.background.height = 2 * borderHeight + Section.iconHeight + 1;
-        this.background.width = 2 * borderHeight + this.icon.width / 4;
-        this.background.scale = { x: pixUnit, y: pixUnit };
-        this.background.zIndex = 3.05;
-        this.background.cursor = "pointer";
-        this.background.interactive = true;
-        this.background.buttonMode = true;
-        this.background.on('pointerdown', this.setSelected);
-        this.backgroundMask = new PIXI.Graphics();
-        this.backgroundMask.rect(
-            this.background.x, this.background.y + borderHeight * pixUnit,
-            this.background.width * pixUnit, this.background.height * pixUnit
-        ).fill();
-        this.background.mask = this.backgroundMask;
-        this.icon.scale = { x: pixUnit / 2, y: pixUnit / 2 };
-        this.icon.zIndex = 3.1;
-        this.icon.visible = false;
-        this.icon.cursor = "pointer";
-        this.icon.interactive = true;
-        this.icon.buttonMode = true;
-        this.icon.on('pointerdown', this.setSelected);
-        renderer.pixi.stage.addChild(this.icon);
-        renderer.pixi.stage.addChild(this.background);
+        this.width = this.sprite.width; this.height = this.sprite.height;
+        UISprite.draw(this);
+        renderer.pixi.stage.addChild(this.sprite);
     }
-    show = this.show.bind(this);
-    show() {
-        this.icon.visible = true;
-        this.background.visible = true;
+    static draw(uiSprite) {
+        UIElement.draw(uiSprite);
+        uiSprite.sprite.scale = { x: uiSprite.resolution * renderer.ui.pixSize, y: uiSprite.resolution * renderer.ui.pixSize };
+    }
+    draw() { UISprite.draw(this); }
+}
+export class Text extends UIElement {
+    get text() { return this.sprite.text; } set text(t) { this.sprite.text = t; }
+    get tint() { return this.sprite.style.fill; } set tint(t) { this.sprite.style.fill = t; }
+    get font() { return this.sprite.style.fontFamily; } set font(f) { this.sprite.style.fontFamily = f; }
+    get width() { return this.sprite.width / renderer.ui.pixSize; } get height() { return this.sprite.height / renderer.ui.pixSize; }
+    constructor(text = "", params = {}) {
+        super(params);
+        this.sprite = new PIXI.Text({
+            text: text,
+            style: {
+                fontFamily: params.font || "pixelFont",
+                fontSize: Text.fontSize(this.resolution),
+                fill: params.tint || 0x000000
+            },
+            textureStyle: { scaleMode: 'nearest' }
+        });
+        this.width = this.sprite.width; this.height = this.sprite.height;
+        renderer.pixi.stage.addChild(this.sprite);
+        Text.draw(this);
+    }
+    static fontSize(resolution) {
+        return Math.round(resolution * renderer.ui.fontSize / window.devicePixelRatio) * window.devicePixelRatio;
+    }
+    static draw(text) {
+        text.sprite.x = text.x; text.sprite.y = text.y;
+        text.sprite.tint = text.tint; text.sprite.zIndex = text.zIndex;
+        text.sprite.style.fontSize = Text.fontSize(text.resolution);
+    }
+    draw() { Text.draw(this); }
+}
+export class BoxButton extends Box {
+    constructor(onClick = () => { }, params = {}) {
+        super(params);
+        this.onClick = () => { onClick(this); };
+        this.sprite.interactive = true; this.sprite.cursor = "pointer";
+        this.sprite.on('pointerdown', this.onClick);
+        BoxButton.draw(this);
+    }
+    static draw(boxButton) {
+        Box.draw(boxButton);
+    }
+    draw() { BoxButton.draw(this); }
+}
+export class TextButton extends BoxButton {
+    constructor(text = "", onClick = () => { }, params = {}) {
+        super(onClick, params);
+        this.padding = params.padding || { left: 1, right: 1, top: 1, bottom: 1 };
+        this.text = new Text(text, { font: params.font, color: params.textTint, resolution: params.textRes });
+        TextButton.draw(this);
+    }
+    static draw(textButton) {
+        textButton.width = textButton.text.width / textButton.resolution / renderer.ui.pixSize + (textButton.padding.left + textButton.padding.right + 2);
+        textButton.height = textButton.text.height / textButton.resolution / renderer.ui.pixSize + (textButton.padding.top + textButton.padding.bottom + 2);
+        textButton.text.x = textButton.x + (textButton.padding.left + 1) * textButton.resolution * renderer.ui.pixSize;
+        textButton.text.y = textButton.y + (textButton.padding.top + 1) * textButton.resolution * renderer.ui.pixSize;
+        BoxButton.draw(textButton); Text.draw(textButton.text);
+    }
+    draw() { TextButton.draw(this); }
+    show() { super.show(); this.text.show(); }
+    hide() { super.hide(); this.text.hide(); }
+}
+export class SpriteButton extends UISprite {
+    constructor(texture, onClick = () => { }, params = {}) {
+        super(texture, params);
+        this.onClick = () => { onClick(this); };
+        this.sprite.interactive = true; this.sprite.cursor = "pointer";
+        this.sprite.on('pointerdown', this.onClick);
+        SpriteButton.draw(this);
+    }
+    static draw(spriteButton) { UISprite.draw(spriteButton); }
+    draw() { SpriteButton.draw(this); }
+}
+export class Section extends BoxButton {
+    name = ""; menu; elements = []; static tabHeight = 7;
+    constructor(texture, elements = [], menu) {
+        super(() => { this.select(); }, { border: "round", tint: 0xbababa });
+        this.menu = menu;
+        this.width = 10; this.height = Section.tabHeight + 3;
+        this.zIndex = this.menu.zIndex - 0.01;
+        this.icon = new UISprite(texture, { zIndex: this.zIndex + 0.02 });
+        this.elements = elements;
+        this.calcContentWidth();
+        this.hide(); this.deselect();
+    }
+    hide() { super.hide(); this.icon.hide(); for (const element of this.elements) { element.hide(); } }
+    show() { super.show(); this.icon.show(); }
+    select() {
+        for (const element of this.elements) { element.show(); }
+        this.zIndex = this.menu.zIndex + 0.01; this.menu.select(this);
+    }
+    deselect() {
+        for (const element of this.elements) { element.hide(); }
+        this.zIndex = this.menu.zIndex - 0.01;
+    }
+    calcContentWidth() {
+        this.contentWidth = 0;
         for (const element of this.elements) {
-            element.show();
+            if (element.width > this.contentWidth) this.contentWidth = element.width * element.resolution;
         }
     }
-    hide = this.hide.bind(this);
-    hide() {
-        this.icon.visible = false;
-        this.background.visible = false;
+    drawContent() {
+        let dy = 0;
         for (const element of this.elements) {
-            element.hide();
-        }
-    }
-    toggleVisibility = this.toggleVisibility.bind(this);
-    toggleVisibility() {
-        if (this.visible) { this.hide(); this.visible = false; }
-        else { this.show(); this.visible = true; }
-    }
-    setSelected = this.setSelected.bind(this);
-    setSelected() {
-        this.menu.selectedSection = this;
-    }
-    draw() {
-        this.background.zIndex = 3.05;
-        for (const element of this.elements) {
+            element.x = this.menu.x + 2 * renderer.ui.pixSize * this.menu.resolution;
+            element.y = this.menu.y + (2 * this.menu.resolution + dy * element.resolution) * renderer.ui.pixSize;
+            dy += element.height + 1;
             element.draw();
         }
     }
+    draw(dx) {
+        this.resolution = this.menu.resolution;
+        this.x = this.menu.x + (this.menu.width - this.width) * renderer.ui.pixSize * this.menu.resolution - dx;
+        this.y = this.menu.y - Section.tabHeight * renderer.ui.pixSize * this.menu.resolution;
+        this.sprite.mask = new PIXI.Graphics().rect(
+            this.x,
+            this.y,
+            this.width * renderer.ui.pixSize * this.menu.resolution,
+            (this.height - this.borderSize + 1) * renderer.ui.pixSize * this.menu.resolution,
+        ).fill();
+        this.icon.resolution = this.menu.resolution * 0.5;
+        this.icon.x = this.x + (this.width * 0.5 - this.icon.width * 0.25) * renderer.ui.pixSize * this.menu.resolution;
+        this.icon.y = this.y + (this.height * 0.5 - this.icon.height * 0.25 - 1) * renderer.ui.pixSize * this.menu.resolution;
+        super.draw(); this.icon.draw();
+        return dx + (this.width - 1) * renderer.ui.pixSize * this.menu.resolution;
+    }
 }
-export class Menu {
-    sections = [];
-    selectedSection = undefined;
-    opened = false;
-    constructor() {
-        this.menuButton = new SpriteButton(assets.ui.menu, this.toggle);
-        this.closeButton = new TextButton("x", this.close, assets.ui.smallBorder, 2);
-        this.closeButton.sprite.width = 6;
-        this.closeButton.sprite.height = 7;
-        this.closeButton.sprite.tint = 0xd14641;
-        this.closeButton.sprite.visible = false;
-        this.background = new PIXI.NineSliceSprite({
-            texture: assets.ui.border,
-            leftWidth: borderHeight,
-            rightWidth: borderHeight,
-            topHeight: borderHeight,
-            bottomHeight: borderHeight,
-            textureStyle: {
-                scaleMode: 'nearest'
-            }
-        });
-        this.background.tint = 0xbababa;
-        this.background.visible = false;
-        this.sections = [
-            new Section(this, assets.ui.gear),
-            new Section(this, assets.ui.players),
-            new Section(this, assets.ui.server),
-        ];
-        this.selectedSection = this.sections[0];
-        this.background.height = 0;
-        this.background.width = 0; let minWidth = this.closeButton.sprite.width;
-        for (const section of this.sections) {
-            if (this.background.height < section.height)
-                this.background.height = section.height;
-            if (this.background.width < section.width)
-                this.background.width = section.width;
-            minWidth += section.background.width - 1;
-        }
-        this.background.height = Math.min(this.background.height, 2 * borderHeight + 70);
-        this.background.width = Math.max(this.background.width, minWidth + 3);
-        renderer.pixi.stage.addChild(this.background);
-        this.open();
-    }
-    close = this.close.bind(this);
-    close() {
-        this.opened = false;
-        this.menuButton.show();
-        this.background.visible = false;
-        this.closeButton.hide();
-        for (const section of this.sections) {
-            section.hide();
-        }
-    }
-    open = this.open.bind(this);
-    open() {
-        this.opened = true;
-        this.menuButton.hide();
-        this.background.visible = true;
-        this.closeButton.show();
-        for (const section of this.sections) {
-            section.show();
-        }
+export class Menu extends Box {
+    sections = {}; selectedSection = undefined; opened = false;
+    constructor(sections = {}, params = {}) {
+        params.border = "round";
+        super(params);
+        this.tint = params.tint || 0xbababa;
+        this.sections = { ...this.defaultSections(), ...sections };
+        this.button = new SpriteButton(assets.ui.menu, () => { this.open(); });
+        this.closeButton = new BoxButton(() => { this.close(); },
+            { width: 6, height: 7, tint: 0xd14641, visible: false, zIndex: this.zIndex - 0.01 });
+        this.closeX = new UISprite(assets.ui.x, { visible: false, zIndex: this.zIndex + 0.005 });
+        this.selectedSection = this.sections[Object.keys(this.sections)[0]];
+        this.selectedSection.select();
+        this.close();
+        //this.open();
         this.draw();
     }
-    toggle = this.toggle.bind(this);
-    toggle() {
-        if (this.opened) { this.close(); }
-        else { this.open(); }
+    defaultSections() {
+        return {
+            settings: new Section(assets.ui.wrench, [
+                new TextButton("Gui scale:" + renderer.ui.guiScale, (textButton) => {
+                    renderer.ui.guiScale = renderer.ui.guiScale % 3 + 1;
+                    textButton.text.text = "Gui scale:" + renderer.ui.guiScale;
+                    calcPixSize(); calcFontSize(); textButton.draw();
+                    for (const names in this.sections) {
+                        const section = this.sections[names]; section.drawContent(); section.calcContentWidth();
+                    }
+                }, { resolution: this.resolution * 0.5, tint: 0xcccccc }),
+                new TextButton("Toggle Fullscreen", () => { renderer.toggleFullscreen(); },
+                    { resolution: this.resolution * 0.5, tint: 0xcccccc }),
+            ], this),
+            players: new Section(assets.ui.players, [], this),
+            networking: new Section(assets.ui.networking, [], this)
+        }
+    };
+    open() {
+        this.opened = true; this.button.hide(); this.show();
+        for (const names in this.sections) { const section = this.sections[names]; section.show(); }
+        this.closeButton.show(); this.closeX.show(); this.selectedSection.select(); this.draw();
+    }
+    close() {
+        this.opened = false; this.button.show(); this.hide();
+        for (const names in this.sections) { const section = this.sections[names]; section.hide(); }
+        this.closeButton.hide(); this.closeX.hide(); this.draw();
+    }
+    select(section) {
+        if (section == this.selectedSection) return;
+        this.selectedSection.deselect(); this.selectedSection = section;
+        this.draw();
     }
     draw() {
+        let screenWidth = renderer.pixi.screen.width, pixSize = renderer.ui.pixSize, res = this.resolution;
         if (this.opened) {
-            let dx = this.drawCloseButton();
-            for (let i = 0; i < this.sections.length; i++) {
-                dx = this.drawSection(i, dx);
+            let minWidth = this.closeButton.width, maxWidth = 0, minHeight = 30, maxHeight = 50, height = 0;
+            for (const names in this.sections) {
+                const section = this.sections[names];
+                if (section.contentWidth > maxWidth) maxWidth = section.contentWidth;
+                minWidth += section.width - 1;
+                if (section.contentHeight > height) height = section.contentHeight;
             }
-            this.background.x = renderer.pixi.screen.width - (this.background.width + 1) * pixUnit;
-            this.background.y = (1 + Section.iconHeight + borderHeight) * pixUnit;
-            this.background.scale = { x: pixUnit, y: pixUnit };
-            this.background.zIndex = 3;
-            if (this.selectedSection) this.selectedSection.draw();
+            this.width = Math.max(minWidth, maxWidth / this.resolution) + this.borderSize + 1;
+            this.height = Math.min(Math.max(height, minHeight), maxHeight);
+            this.x = screenWidth - (this.width + 1) * pixSize * res, this.y = (Section.tabHeight + 1) * pixSize * res;
+            Box.draw(this);
+            this.closeButton.resolution = res;
+            this.closeButton.x = this.x + (this.width - this.closeButton.width) * pixSize * res;
+            this.closeButton.y = this.y - (this.closeButton.height - 3) * pixSize * res;
+            this.closeButton.sprite.mask = new PIXI.Graphics().rect(
+                this.closeButton.x, this.closeButton.y,
+                this.closeButton.width * pixSize * res,
+                (this.closeButton.height - this.closeButton.borderSize + 1) * pixSize * res
+            ).fill();
+            this.closeX.resolution = res / 2;
+            this.closeX.x = this.closeButton.x + (this.closeButton.width - this.closeX.width / 2) / 2 * pixSize * res;
+            this.closeX.y = this.closeButton.y + (this.closeButton.height - this.closeX.height / 2 - 1.8) / 2 * pixSize * res;
+            this.closeX.draw();
+            this.closeButton.draw();
+            let dx = (this.closeButton.width - 1) * pixSize * res;
+            for (const names in this.sections) {
+                const section = this.sections[names];
+                dx = section.draw(dx);
+            }
+            this.selectedSection.drawContent(this);
         } else {
-            this.menuButton.sprite.x = renderer.pixi.screen.width - this.menuButton.sprite.width - pixUnit;
-            this.menuButton.sprite.y = pixUnit;
-            this.menuButton.draw();
+            this.button.resolution = res;
+            this.button.x = screenWidth - (this.button.width + 1) * pixSize * res, this.button.y = pixSize * res;
+            this.button.draw();
         }
-    }
-    drawCloseButton() {
-        this.closeButton.x = renderer.pixi.screen.width - this.closeButton.sprite.width * pixUnit - pixUnit;
-        this.closeButton.y = this.background.y - this.closeButton.sprite.height * pixUnit + 3 * pixUnit;
-        this.closeButton.draw();
-        this.closeButton.text.y -= pixUnit;
-        return this.closeButton.sprite.width * pixUnit - pixUnit;
-    }
-    drawSection(i, dx) {
-        const section = this.sections[i];
-        let newDx = dx + section.background.width * pixUnit;
-        section.background.x = this.background.x + this.background.width * pixUnit - newDx;
-        section.background.y = pixUnit;
-        section.icon.x = section.background.x + section.background.width * pixUnit / 2;
-        section.icon.y = section.background.y + section.background.height * pixUnit / 2 - 1.5 * pixUnit;
-        section.backgroundMask = new PIXI.Graphics();
-        section.backgroundMask.rect(
-            section.background.x, section.background.y,
-            section.background.width * pixUnit, (section.background.height - borderHeight) * pixUnit
-        ).fill();
-        section.background.mask = section.backgroundMask;
-        section.background.zIndex = 2.9;
-        return newDx - pixUnit;
     }
 }

@@ -12,14 +12,20 @@
         "root": true
     },
     {
-        "attribute": "menu",
-        "src": "ui/menu.png",
+        "attribute": "smallBorder",
+        "src": "ui/smallBorder.png",
         "type": "texture",
         "root": true
     },
     {
-        "attribute": "smallBorder",
-        "src": "ui/smallBorder.png",
+        "attribute": "roundBorder",
+        "src": "ui/roundBorder.png",
+        "type": "texture",
+        "root": true
+    },
+    {
+        "attribute": "menu",
+        "src": "ui/menu.png",
         "type": "texture",
         "root": true
     },
@@ -30,14 +36,20 @@
         "root": true
     },
     {
-        "attribute": "gear",
-        "src": "ui/gear.png",
+        "attribute": "wrench",
+        "src": "ui/wrench.png",
         "type": "texture",
         "root": true
     },
     {
-        "attribute": "server",
-        "src": "ui/server.png",
+        "attribute": "networking",
+        "src": "ui/networking.png",
+        "type": "texture",
+        "root": true
+    },
+    {
+        "attribute": "x",
+        "src": "ui/x.png",
         "type": "texture",
         "root": true
     }

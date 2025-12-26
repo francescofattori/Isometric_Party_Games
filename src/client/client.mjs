@@ -10,7 +10,7 @@ import { Player } from "./player.mjs";
 import { vec3 } from "../common/vector.mjs";
 import { Game } from "game";
 import { startLoop } from "./loop.mjs";
-import { Menu } from "./ui.mjs";
+import { Menu, SpriteButton, TextButton } from "./ui.mjs";
 //global variables
 export const assets = new AssetsManager();
 export const world = new World();

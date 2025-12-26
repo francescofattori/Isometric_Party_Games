@@ -24,7 +24,6 @@ function handleTouchEnd(e, stickDiv) {
 }
 function handleButtonTouchStart(e, button) {
     e.preventDefault();
-    setFullscreen();
     button.pressed = 1;
 }
 function handleButtonTouchEnd(e, button) {
@@ -78,10 +77,4 @@ export function createTouchControls() {
 export function removeTouchControls() {
     let elem = document.getElementById("touchControls");
     if (elem) elem.remove();
-}
-//temporary
-function setFullscreen() {
-    if (document.body.requestFullscreen) {
-        document.body.requestFullscreen();
-    }
 }

@@ -1,9 +1,11 @@
 import * as PIXI from "../include/pixi.mjs";
 import FontFaceObserver from "../include/fontfaceobserver.mjs";
 import { assets, gameInfo, localPlayers, remotePlayers, scene, socket, world, menu } from "./client.mjs";
+import { calcPixSize, calcFontSize } from "./ui.mjs";
 export const htmlStats = document.getElementById("stats");
 export const htmlViewPort = document.getElementById("viewport");
 export class Renderer {
+    ui = { guiScale: 2, pixSize: 1, fontSize: 16 };
     async init() {
         //LOADING FONT
         let font = document.createElement("style");
@@ -30,6 +32,7 @@ export class Renderer {
             autoDensity: true, resolution: window.devicePixelRatio,
             //roundPixels: true
         });
+        calcPixSize(); calcFontSize();
         let ui = gameInfo.ui;
         if (ui) await assets.loadUI(ui.src, ui.root);
         htmlViewPort.appendChild(this.pixi.canvas);
@@ -64,5 +67,9 @@ export class Renderer {
         for (let entity of scene.entities) { entity.draw(); }
         for (const player of localPlayers) { player.draw(); }
         for (const player of remotePlayers) { player.draw(); }
+    }
+    toggleFullscreen() {
+        if (!this.fullscreen) { document.body.requestFullscreen(); this.fullscreen = true; }
+        else { document.exitFullscreen(); this.fullscreen = false; }
     }
 }
