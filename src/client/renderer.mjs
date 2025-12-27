@@ -5,7 +5,7 @@ import { calcPixSize, calcFontSize } from "./ui.mjs";
 export const htmlStats = document.getElementById("stats");
 export const htmlViewPort = document.getElementById("viewport");
 export class Renderer {
-    ui = { guiScale: 2, pixSize: 1, fontSize: 16 };
+    ui = { guiScale: 2, pixSize: 1, fontSize: 16};
     async init() {
         //LOADING FONT
         let font = document.createElement("style");
@@ -31,6 +31,10 @@ export class Renderer {
             background: "#1099bb", resizeTo: window,
             autoDensity: true, resolution: window.devicePixelRatio,
             //roundPixels: true
+        });
+        document.cookie.split(";").forEach(item => {
+            item = item.trim();
+            if (item.startsWith("guiScale=")) this.ui.guiScale = parseInt(item.split("=")[1]);
         });
         calcPixSize(); calcFontSize();
         let ui = gameInfo.ui;

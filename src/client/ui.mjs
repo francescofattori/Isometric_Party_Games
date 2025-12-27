@@ -24,6 +24,23 @@ export class UIElement {
     }
     draw() { UIElement.draw(this); }
 }
+export class UISprite extends UIElement {
+    constructor(texture, params = {}) {
+        super(params);
+        this.sprite = new PIXI.Sprite({
+            texture: texture,
+            textureStyle: { scaleMode: 'nearest' }
+        });
+        this.width = this.sprite.width; this.height = this.sprite.height;
+        UISprite.draw(this);
+        renderer.pixi.stage.addChild(this.sprite);
+    }
+    static draw(uiSprite) {
+        UIElement.draw(uiSprite);
+        uiSprite.sprite.scale = { x: uiSprite.resolution * renderer.ui.pixSize, y: uiSprite.resolution * renderer.ui.pixSize };
+    }
+    draw() { UISprite.draw(this); }
+}
 export class Box extends UIElement {
     constructor(params = {}) {
         super(params);
@@ -49,28 +66,23 @@ export class Box extends UIElement {
     }
     draw() { Box.draw(this); }
 }
-export class UISprite extends UIElement {
-    constructor(texture, params = {}) {
+export class BoxButton extends Box {
+    constructor(onClick = () => { }, params = {}) {
         super(params);
-        this.sprite = new PIXI.Sprite({
-            texture: texture,
-            textureStyle: { scaleMode: 'nearest' }
-        });
-        this.width = this.sprite.width; this.height = this.sprite.height;
-        UISprite.draw(this);
-        renderer.pixi.stage.addChild(this.sprite);
+        this.onClick = () => { onClick(this); };
+        this.sprite.interactive = true; this.sprite.cursor = "pointer";
+        this.sprite.on('pointerdown', this.onClick);
+        BoxButton.draw(this);
     }
-    static draw(uiSprite) {
-        UIElement.draw(uiSprite);
-        uiSprite.sprite.scale = { x: uiSprite.resolution * renderer.ui.pixSize, y: uiSprite.resolution * renderer.ui.pixSize };
+    static draw(boxButton) {
+        Box.draw(boxButton);
     }
-    draw() { UISprite.draw(this); }
+    draw() { BoxButton.draw(this); }
 }
 export class Text extends UIElement {
     get text() { return this.sprite.text; } set text(t) { this.sprite.text = t; }
     get tint() { return this.sprite.style.fill; } set tint(t) { this.sprite.style.fill = t; }
     get font() { return this.sprite.style.fontFamily; } set font(f) { this.sprite.style.fontFamily = f; }
-    get width() { return this.sprite.width / renderer.ui.pixSize; } get height() { return this.sprite.height / renderer.ui.pixSize; }
     constructor(text = "", params = {}) {
         super(params);
         this.sprite = new PIXI.Text({
@@ -93,21 +105,9 @@ export class Text extends UIElement {
         text.sprite.x = text.x; text.sprite.y = text.y;
         text.sprite.tint = text.tint; text.sprite.zIndex = text.zIndex;
         text.sprite.style.fontSize = Text.fontSize(text.resolution);
+        text.width = text.sprite.width / renderer.ui.pixSize; text.height = text.sprite.height / renderer.ui.pixSize;
     }
     draw() { Text.draw(this); }
-}
-export class BoxButton extends Box {
-    constructor(onClick = () => { }, params = {}) {
-        super(params);
-        this.onClick = () => { onClick(this); };
-        this.sprite.interactive = true; this.sprite.cursor = "pointer";
-        this.sprite.on('pointerdown', this.onClick);
-        BoxButton.draw(this);
-    }
-    static draw(boxButton) {
-        Box.draw(boxButton);
-    }
-    draw() { BoxButton.draw(this); }
 }
 export class TextButton extends BoxButton {
     constructor(text = "", onClick = () => { }, params = {}) {
@@ -117,8 +117,8 @@ export class TextButton extends BoxButton {
         TextButton.draw(this);
     }
     static draw(textButton) {
-        textButton.width = textButton.text.width / textButton.resolution / renderer.ui.pixSize + (textButton.padding.left + textButton.padding.right + 2);
-        textButton.height = textButton.text.height / textButton.resolution / renderer.ui.pixSize + (textButton.padding.top + textButton.padding.bottom + 2);
+        textButton.width = textButton.text.width / textButton.resolution + (textButton.padding.left + textButton.padding.right + 2);
+        textButton.height = textButton.text.height / textButton.resolution + (textButton.padding.top + textButton.padding.bottom + 2);
         textButton.text.x = textButton.x + (textButton.padding.left + 1) * textButton.resolution * renderer.ui.pixSize;
         textButton.text.y = textButton.y + (textButton.padding.top + 1) * textButton.resolution * renderer.ui.pixSize;
         BoxButton.draw(textButton); Text.draw(textButton.text);
@@ -137,6 +137,53 @@ export class SpriteButton extends UISprite {
     }
     static draw(spriteButton) { UISprite.draw(spriteButton); }
     draw() { SpriteButton.draw(this); }
+}
+export class TextInput extends BoxButton {
+    constructor(text = "", onChange = () => { }, params = {}) {
+        super(() => { this.focus(); }, params);
+        this.font = params.font || "pixelFont"; this.textRes = params.textRes || 1;
+        this.minHeight = params.minHeight || 1, this.maxHeight = params.maxHeight || 3, this.maxWidth = params.maxWidth || 10;
+        this.onChange = () => { onChange(this); };
+        this.input = document.createElement("textarea"); this.input.value = text; this.input.style.resize = "none";
+        this.input.style.position = "absolute", this.input.style.left = this.x + "px", this.input.style.top = this.y + "px";
+        this.input.style.margin = "0", this.input.style.padding = "0", this.input.style.border = "0";
+        this.input.style.outline = "none"; this.input.style.background = "transparent";
+        this.input.style.scrollbarWidth = "none"; this.input.style.fieldSizing = "content";
+        this.input.addEventListener("input", this.onInput);
+        document.body.appendChild(this.input);
+        TextInput.draw(this);
+        console.log(this.width, this.height);
+    }
+    static draw(textInput) {
+        textInput.input.style.left = textInput.x + "px", textInput.input.style.top = textInput.y + "px";
+        textInput.input.style.fontFamily = textInput.font, textInput.input.style.fontSize = Text.fontSize(textInput.textRes) + "px";
+        let padding = 2 * textInput.resolution * renderer.ui.pixSize;
+        textInput.input.style.padding = padding + "px";
+        textInput.input.style.width = textInput.maxWidth * renderer.ui.fontSize - padding + "px";
+        textInput.input.style.minHeight = textInput.minHeight * renderer.ui.fontSize - padding + "px";
+        textInput.input.style.maxHeight = textInput.maxHeight * renderer.ui.fontSize - padding + "px";
+        textInput.width = textInput.input.getBoundingClientRect().width / renderer.ui.pixSize / textInput.resolution;
+        textInput.height = textInput.input.getBoundingClientRect().height / renderer.ui.pixSize / textInput.resolution;
+        BoxButton.draw(textInput);
+    }
+    draw() { TextInput.draw(this); }
+    show() {
+        super.show(); this.input.style.opacity = "1"; this.input.style.pointerEvents = "all";
+    }
+    hide() {
+        super.hide(); this.input.style.opacity = "0"; this.input.style.pointerEvents = "none";
+    }
+    onInput = this.onInput.bind(this);
+    onInput(e) {
+        this.onChange();
+        this.draw();
+    }
+    focus() {
+        this.focussed = true;
+    }
+    unfocus() {
+        this.focussed = false;
+    }
 }
 export class Section extends BoxButton {
     name = ""; menu; elements = []; static tabHeight = 7;
@@ -163,15 +210,15 @@ export class Section extends BoxButton {
     calcContentWidth() {
         this.contentWidth = 0;
         for (const element of this.elements) {
-            if (element.width > this.contentWidth) this.contentWidth = element.width * element.resolution;
+            if (element.width * element.resolution > this.contentWidth) this.contentWidth = element.width * element.resolution;
         }
     }
     drawContent() {
         let dy = 0;
         for (const element of this.elements) {
             element.x = this.menu.x + 2 * renderer.ui.pixSize * this.menu.resolution;
-            element.y = this.menu.y + (2 * this.menu.resolution + dy * element.resolution) * renderer.ui.pixSize;
-            dy += element.height + 1;
+            element.y = this.menu.y + (2 * this.menu.resolution + dy) * renderer.ui.pixSize;
+            dy += element.height * element.resolution + 0.5;
             element.draw();
         }
     }
@@ -206,25 +253,37 @@ export class Menu extends Box {
         this.selectedSection = this.sections[Object.keys(this.sections)[0]];
         this.selectedSection.select();
         this.close();
-        //this.open();
         this.draw();
     }
     defaultSections() {
+        document.cookie.split(";").forEach(item => {
+            item = item.trim();
+            if (item.startsWith("serverAddress=")) this.serverAddress = item.split("=")[1];
+        });
         return {
             settings: new Section(assets.ui.wrench, [
                 new TextButton("Gui scale:" + renderer.ui.guiScale, (textButton) => {
                     renderer.ui.guiScale = renderer.ui.guiScale % 3 + 1;
                     textButton.text.text = "Gui scale:" + renderer.ui.guiScale;
-                    calcPixSize(); calcFontSize(); textButton.draw();
+                    calcPixSize(); calcFontSize();
                     for (const names in this.sections) {
-                        const section = this.sections[names]; section.drawContent(); section.calcContentWidth();
+                        const section = this.sections[names];
+                        section.drawContent(); section.calcContentWidth();
+                        section.drawContent(); section.calcContentWidth();
                     }
+                    document.cookie = "guiScale=" + renderer.ui.guiScale + "; expires = Fri, 31 Dec 9999 23:59:59 GMT;";
                 }, { resolution: this.resolution * 0.5, tint: 0xcccccc }),
                 new TextButton("Toggle Fullscreen", () => { renderer.toggleFullscreen(); },
                     { resolution: this.resolution * 0.5, tint: 0xcccccc }),
             ], this),
             players: new Section(assets.ui.players, [], this),
-            networking: new Section(assets.ui.networking, [], this)
+            networking: new Section(assets.ui.networking, [
+                new Text("Server address:"),
+                new TextInput(this.serverAddress,
+                    (textInput) => {
+                        document.cookie = "serverAddress=" + textInput.input.value + "; expires = Fri, 31 Dec 9999 23:59:59 GMT;";
+                    }, { resolution: this.resolution * 0.5, tint: 0xcccccc }),
+            ], this)
         }
     };
     open() {
