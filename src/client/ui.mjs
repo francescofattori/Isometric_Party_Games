@@ -152,7 +152,6 @@ export class TextInput extends BoxButton {
         this.input.addEventListener("input", this.onInput);
         document.body.appendChild(this.input);
         TextInput.draw(this);
-        console.log(this.width, this.height);
     }
     static draw(textInput) {
         textInput.input.style.left = textInput.x + "px", textInput.input.style.top = textInput.y + "px";

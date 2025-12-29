@@ -1,13 +1,16 @@
 //CLIENT
-import { scene, world, renderer } from "./client.mjs";
+import { scene, renderer } from "./client.mjs";
 import { vec2, vec3 } from "../common/vector.mjs";
 export const pixPerUnit = 32;
 export class Camera {
-    pos = new vec3();
+    pos = new vec2();
     target = new vec3();
+    followType = "normal"; //normal, smooth, fixed
+    recentering = true; recenteringTime = 2; //seconds
     speed = 1.5;
-    softZone = new vec3(1, 1, 2);
-    hardZone = new vec3(2, 2, 4);
+    softZone = new vec2(2, 3);
+    hardZone = new vec3(3, 5);
+    stillTime = 0; prevTarget = new vec3();
     set zoom(v) { this._zoom = v / devicePixelRatio; }
     get zoom() { return this._zoom; }
     _zoom = Math.round(4 * (1 + window.devicePixelRatio) * 0.5) / window.devicePixelRatio;
@@ -18,7 +21,7 @@ export class Camera {
         return z;
     }
     worldToCanvas(p, zIndex = true) {
-        let pX = p.x - this.pos.x, pZ = p.z - this.pos.z, pY = p.y - this.pos.y;
+        let pX = p.x - this.pos.x, pZ = p.z, pY = p.y - this.pos.y;
         let x = 0.5 * (pX - pY);
         let y = 0.5 * pZ + 0.25 * (pX + pY);
         let v = new vec2(
@@ -28,25 +31,38 @@ export class Camera {
         if (zIndex) v.zIndex = this.zIndex(p);
         return v;
     }
-    update() {
+    draw(dt) {
+        this.followTarget(dt);
+    }
+    followTarget(dt) {
         if (!this.target) return;
-        let xDiff = 0.5 * ((this.target.x - this.target.y) - (this.pos.x - this.pos.y));
-        let yDiff = 0.5 * ((this.target.x + this.target.y) - (this.pos.x + this.pos.y));
-        let zDiff = this.target.z - this.pos.z;
-        if (this.target.z < scene.map.size.z) zDiff = 0;
-        let xS = Math.sign(xDiff) | 0, yS = Math.sign(yDiff) | 0, zS = Math.sign(zDiff) | 0;
-        if (xS * xDiff > this.softZone.x) {
-            this.pos.x += this.speed * xS * world.dt; this.pos.y -= this.speed * xS * world.dt;
+        if (this.followType == "fixed") { this.pos = this.target; return; }
+        let d = this.worldToCanvas(this.target).minus(
+            new vec2(Math.floor(renderer.pixi.screen.width * 0.5), Math.floor(renderer.pixi.screen.height * 0.5))
+        ).times(1 / this._zoom / pixPerUnit); d.y *= 2;
+        let xS = Math.sign(d.x) || 0, yS = Math.sign(d.y) || 0;
+        if (Math.abs(d.x) >= this.hardZone.x * 0.5) {
+            this.pos.x += d.x - xS * this.hardZone.x * 0.5; this.pos.y -= d.x - xS * this.hardZone.x * 0.5;
+        } else if (Math.abs(d.x) >= this.softZone.x * 0.5 && this.followType == "smooth") {
+            this.pos.x += this.speed * xS * dt; this.pos.y -= this.speed * xS * dt;
         }
-        if (yS * yDiff > this.softZone.y) {
-            this.pos.x += this.speed * yS * world.dt; this.pos.y += this.speed * yS * world.dt;
+        if (Math.abs(d.y) >= this.hardZone.y * 0.5) {
+            this.pos.x -= d.y - yS * this.hardZone.y * 0.5; this.pos.y -= d.y - yS * this.hardZone.y * 0.5;
+        } else if (Math.abs(d.y) >= this.softZone.y * 0.5 && this.followType == "smooth") {
+            this.pos.x -= this.speed * yS * dt; this.pos.y -= this.speed * yS * dt;
         }
-        if (zS * zDiff > this.softZone.z) this.pos.z += this.speed * zS * world.dt;
-        if (xS * xDiff > this.hardZone.x) {
-            this.pos.x += xDiff - xS * this.hardZone.x; this.pos.y -= xDiff - xS * this.hardZone.x;
+        if (this.recentering) {
+            if (this.prevTarget.equals(this.target)) this.stillTime += dt;
+            else this.stillTime = 0;
+            if (this.stillTime > this.recenteringTime) {
+                if (Math.abs(d.x) > 0.1) {
+                    this.pos.x += this.speed * xS * dt; this.pos.y -= this.speed * xS * dt;
+                }
+                if (Math.abs(d.y) > 0.1) {
+                    this.pos.x -= this.speed * yS * dt; this.pos.y -= this.speed * yS * dt;
+                }
+            }
         }
-        if (yS * yDiff > this.hardZone.y) {
-            this.pos.x += yDiff - yS * this.hardZone.y; this.pos.y += yDiff - yS * this.hardZone.y;
-        }
+        this.prevTarget = new vec3(this.target);
     }
 }

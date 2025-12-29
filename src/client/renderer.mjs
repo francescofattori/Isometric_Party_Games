@@ -1,6 +1,6 @@
 import * as PIXI from "../include/pixi.mjs";
 import FontFaceObserver from "../include/fontfaceobserver.mjs";
-import { assets, gameInfo, localPlayers, remotePlayers, scene, socket, world, menu } from "./client.mjs";
+import { assets, gameInfo, localPlayers, remotePlayers, scene, socket, world, menu, camera } from "./client.mjs";
 import { calcPixSize, calcFontSize } from "./ui.mjs";
 export const htmlStats = document.getElementById("stats");
 export const htmlViewPort = document.getElementById("viewport");
@@ -50,7 +50,7 @@ export class Renderer {
         this.pixi.ticker.remove(this.draw);
     }
     draw = this.draw.bind(this);
-    draw() {
+    draw(ticker) {
         //DEBUG
         if (world.time > 1.0) {
             if (world.time - world.statTime > 1.0) {
@@ -66,6 +66,7 @@ export class Renderer {
         world.FPSSum += this.pixi.ticker.FPS;
         world.statCount += 1;
         //-----
+        camera.draw(ticker.deltaTime / 60);
         menu.draw();
         scene.map.draw();
         for (let entity of scene.entities) { entity.draw(); }

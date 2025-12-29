@@ -1,14 +1,13 @@
--options menu with dedicated game section (cookies to save info) (create basic ui system)
--change camera softzone and hardzone based on screen position (for vertical screen)
+PRIMARY:
 -rework max and min zIndex of map
 -design multiple players system (how players enter and when they can join, what happens then (modular on the game), spectators...) 
 -make clothes system (3 pieces)
 -make save system (as user with username and local for offline games (both easily exportable))
--search for audio libraries
 -test shooter weapon grip
+-search for audio libraries
 -make extended ui system? (to make games more easily???)
 
-
+SECONDARY:
 -check for usage of world.dt and dt = world.time - world.previousTime... (use dt now is variable)
 -check classes to free assets data when initialized and add loaded check as in scene to all classes
 -use new URL instead of URL.parse
@@ -17,5 +16,9 @@
 -make advancedSprite class for multiple transformations
 -test shooter weapon grip
 
--GAME IDEAS
+GAME IDEAS:
 -tennis in verticale ma con i polli (oppure normale)
+
+DONE:
+-change camera softzone and hardzone based on screen position (for vertical screen)
+-options menu with dedicated game section (cookies to save info) (create basic ui system)

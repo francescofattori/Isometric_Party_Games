@@ -72,7 +72,6 @@ let library = "geckos.io";
     }
 });*/
 export const updateLoop = startLoop((loop) => {
-    camera.update();
     for (const entity of scene.entities) { entity.update(); }
     for (const player of localPlayers) player.update();
     world.update();
