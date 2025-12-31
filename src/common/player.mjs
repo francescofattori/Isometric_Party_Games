@@ -37,7 +37,7 @@ export function Player(EntityClass) {
                     this.rigidbody.position.set(newPos.x, newPos.y, newPos.z);
                 }
                 this.grounded = true;
-                if (this.sprite.anim == "fall") { console.log("land");this.sprite.anim = "land"; this.landTime = this.world.time; }
+                if (this.sprite.anim == "fall") { this.sprite.anim = "land"; this.landTime = this.world.time; }
             }
         }
         update() {

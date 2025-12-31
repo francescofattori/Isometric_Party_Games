@@ -1,7 +1,6 @@
 PRIMARY:
--rework max and min zIndex of map
 -design multiple players system (how players enter and when they can join, what happens then (modular on the game), spectators...) 
--make clothes system (3 pieces)
+-make clothes system (4 pieces, one is hand)
 -make save system (as user with username and local for offline games (both easily exportable))
 -test shooter weapon grip
 -search for audio libraries
@@ -18,6 +17,8 @@ SECONDARY:
 
 GAME IDEAS:
 -tennis in verticale ma con i polli (oppure normale)
+-shooter game con Ivan
+-farming game con Lisa
 
 DONE:
 -change camera softzone and hardzone based on screen position (for vertical screen)

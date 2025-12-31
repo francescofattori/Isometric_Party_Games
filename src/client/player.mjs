@@ -3,7 +3,7 @@ import { Player as CommonPlayer } from "../common/player.mjs";
 import { Entity } from "./entity.mjs";
 import { Sprite } from "./sprite.mjs";
 import { Controller } from "./controller.mjs";
-import { vec2, vec3 } from "../common/vector.mjs";
+import { vec3 } from "../common/vector.mjs";
 import { world, camera, localPlayers, remotePlayers } from "./client.mjs";
 export class Player extends CommonPlayer(Entity) {
     genAssetsNames() {
@@ -29,11 +29,6 @@ export class Player extends CommonPlayer(Entity) {
     initGraphics() {
         let texture = this.assets.spriteTexture;
         this.sprite = new Sprite(texture); this.sprite.anim = "idle";
-        /*this.sprite.onComplete(() => {
-            switch (this.sprite.anim) { 
-                case "land": this.sprite.anim = "idle"; break;
-            }
-        });*/
         this.shadow = new Sprite(this.assets.shadowTexture);
         this.shadow.alpha = 0.35;
         this.rightHand.sprite = new Sprite(this.assets.handTexture);

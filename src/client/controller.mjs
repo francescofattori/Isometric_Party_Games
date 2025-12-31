@@ -199,6 +199,7 @@ export class Controller {
         if (!this.mouseTarget) return;
         if (this.rightClick) {
             this.marker.visible = true;
+            this.draw();
             this.rightStick = new vec2(new vec3(this.mouseTarget).minus(this.player.pos).rotated(Math.PI / 4).normalized());
             this.rightAngle = Math.atan2(this.rightStick.y, this.rightStick.x);
         }

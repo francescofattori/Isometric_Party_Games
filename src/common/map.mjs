@@ -30,7 +30,7 @@ export class SceneMap {
         //Depth calculations
         this.size = this.info.size;
         this.center = this.info.center;
-        this.maxHeight = 10;
+        this.maxHeight = 10; //for controller rayCast
         this.maxZIndex = 2.0 * (this.size.z - this.center.z) - this.center.x - this.center.y + 100;
         this.minZIndex = 2.0 * this.center.z - (this.size.x - this.center.x) - (this.size.y - this.center.y) - 100;
         this.multZIndex = 1.0 / (this.maxZIndex - this.minZIndex);

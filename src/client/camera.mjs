@@ -14,7 +14,7 @@ export class Camera {
     set zoom(v) { this._zoom = v / devicePixelRatio; }
     get zoom() { return this._zoom; }
     _zoom = Math.round(4 * (1 + window.devicePixelRatio) * 0.5) / window.devicePixelRatio;
-    zIndex(p) {
+    zIndex(p) {//between -1 and 1 (+-2 for outside the map)
         let z = 1.0 + 2.0 * ((2 * p.z - p.x - p.y) - scene.map.maxZIndex) * scene.map.multZIndex;
         if (scene.map.heightAt(p) < 0) z -= 2;
         else if (scene.map.heightAt(p) >= scene.map.size.z) z += 2;
