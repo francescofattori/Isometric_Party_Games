@@ -5,7 +5,8 @@ export function calcPixSize() {
     renderer.ui.pixSize = Math.round(2 * renderer.ui.guiScale * window.devicePixelRatio) / window.devicePixelRatio;
 }
 export function calcFontSize() {
-    renderer.ui.fontSize = Math.round(16 / window.devicePixelRatio) * window.devicePixelRatio;
+    let s = 16; if (renderer.ui.guiScale == 4) s = 24;
+    renderer.ui.fontSize = Math.round(s / window.devicePixelRatio) * window.devicePixelRatio;
 }
 export class UIElement {
     x = 0; y = 0; width = 0; height = 0;
@@ -262,7 +263,7 @@ export class Menu extends Box {
         return {
             settings: new Section(assets.ui.wrench, [
                 new TextButton("Gui scale:" + renderer.ui.guiScale, (textButton) => {
-                    renderer.ui.guiScale = renderer.ui.guiScale % 3 + 1;
+                    renderer.ui.guiScale = renderer.ui.guiScale % 4 + 1;
                     textButton.text.text = "Gui scale:" + renderer.ui.guiScale;
                     calcPixSize(); calcFontSize();
                     for (const names in this.sections) {

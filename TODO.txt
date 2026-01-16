@@ -1,10 +1,35 @@
 PRIMARY:
--design multiple players system (how players enter and when they can join, what happens then (modular on the game), spectators...) 
--make clothes system (4 pieces, one is hand)
+-design multiple players system (how players enter and when they can join, what happens then (modular on the game), spectators...)
+	- il client deve gestire opzioni riguardo i giocatori collegati (PlayerManager class?)
+	- il gioco deve poter gestire l'ingresso di giocatori con animazioni o semplicemente ottenere l'inventario di quel player
+	- i dati di salvataggio che riguardano i giocatori vengono salvati associati ad un nickname, questo deve essere generato casualmente al primo ingresso del gioco e modificabile con uno disponibile
+	  al momento del salvataggio i dati del giocatore vengono salvati associati al suo nick attuale. All'ingresso del gioco i dati vengono pescati associati al nick utilizzato per entrare
+	  e settabile dal menu (con opzione di disconnettere e riconnettere il giocatore). Il nick selezionato viene salvato come cookie ed utilizzato all'ingresso del giocatore.
+	- Quanto detto gestisce i casi di giocatore singolo o collegato ad un server (il gioco tecnicamente è sempre hostato su un server).
+	  Nei cookie del client si può anche salvare il nick del giocatore 2, 3, ecc., deve essere possibile associare nick a controller e visualizzare
+	  quale controller sta ricevendo input per capire chi sia chi
+	- Queste associazioni sono gestite dal PlayerManager (anche salvare cookie ecc.)
+	- Riassumendo: PlayerManager class che gestisce i controller collegati e i nick associati insieme all'ui (oggetto globale del client)
+	  Game deve avere le funzioni: onPlayerEnter, onPlayerExit (per ingresso del client vengono eseguite per ogni player del client in ingresso)
+	  Game deve avere gli attributi: playerCanJoin: bool, spectatorOnlyMode: bool (in caso sia vera quando entra un client non vengono chiamate onPlayerEnter e viene comunicata la modalità spettatore)
+	- meglio creare una classe Game da estendere ogni volta in modo da avere funzionalità di base come caricare vestiti
+
+	- I giochi che hanno "mondi" devono avere un menù principale e bisogna selezionare il salvataggio
+	- I giochi senza "mondi" possono caricare un file predeterminato
+	- I salvataggi per gioco vengono salvati come cookie se non si è connessi ad un server, sennò in file del server nella cartella saves/"gameName"
+	- Il sito deve poter essere hostato su github.io, in locale senza server (solo host della pagina web) (in questi due casi tutti i salvataggi devono essere su cookie),
+ 	  via server con salvataggi in file separati
+	- Ogni Game che vuole salvare deve implementare una funzione genSaveObj che verrà utilizzata per creare la stringa JSON contenente i dati
+	- La classe Game base deve avere un metodo save che salva su cookie o manda richiesta al server di salvare
+	- Ci deve essere sempre un modo per esportare o importare salvataggi nei giochi che li utilizzano (ui apposita)
+
+
+-make clothes system (4 pieces, one is hand) (salvati unicamente come cookie ed associati a player 1,2,3,ecc.)
 -make save system (as user with username and local for offline games (both easily exportable))
 -test shooter weapon grip
 -search for audio libraries
 -make extended ui system? (to make games more easily???)
+-implement specator mode
 
 SECONDARY:
 -check for usage of world.dt and dt = world.time - world.previousTime... (use dt now is variable)

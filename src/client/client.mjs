@@ -8,7 +8,7 @@ import { Socket } from "./networking.mjs";
 import { Controller } from "./controller.mjs";
 import { Player } from "./player.mjs";
 import { vec3 } from "../common/vector.mjs";
-import { Game } from "game";
+import { Game } from "game"; //uses importmap to load game
 import { startLoop } from "./loop.mjs";
 import { Menu, SpriteButton, TextButton } from "./ui.mjs";
 //global variables

@@ -30,7 +30,7 @@ export class Renderer {
         await this.pixi.init({
             background: "#1099bb", resizeTo: window,
             autoDensity: true, resolution: window.devicePixelRatio,
-            //roundPixels: true
+            roundPixels: true
         });
         document.cookie.split(";").forEach(item => {
             item = item.trim();
